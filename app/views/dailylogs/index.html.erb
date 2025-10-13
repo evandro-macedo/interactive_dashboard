@@ -1,0 +1,50 @@
+<div class="py-4">
+  <h1 class="display-4 mb-4">Daily Logs - Data Lake</h1>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= flash[:alert] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">
+      Showing <strong><%= @dailylogs.offset_value + 1 %></strong> to
+      <strong><%= [@dailylogs.offset_value + @dailylogs.length, @dailylogs.total_count].min %></strong> of
+      <strong><%= number_with_delimiter(@dailylogs.total_count) %></strong> records
+    </p>
+    <%= paginate @dailylogs %>
+  </div>
+
+  <% if @dailylogs.any? %>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <% @dailylogs.first.attributes.keys.each do |column| %>
+              <th scope="col"><%= column.titleize %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @dailylogs.each do |log| %>
+            <tr>
+              <% log.attributes.each do |key, value| %>
+                <td><%= value.to_s.truncate(100) %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+      <%= paginate @dailylogs %>
+    </div>
+  <% else %>
+    <div class="alert alert-warning" role="alert">
+      <i class="bi bi-exclamation-triangle-fill"></i> No records found in the dailylogs table.
+    </div>
+  <% end %>
+</div>
