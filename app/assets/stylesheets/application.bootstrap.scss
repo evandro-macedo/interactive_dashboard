@@ -1,10 +1,30 @@
 @import 'bootstrap';
 
-// Custom styles can go here
-body {
-  padding-top: 20px;
-}
-
+// Custom styles
 .table-responsive {
   margin-bottom: 2rem;
+}
+
+// Lakeshore logo styling
+.sidebar-brand-logo-full,
+.sidebar-brand-logo-icon {
+  transition: all 0.3s ease;
+}
+
+// Default state (expanded sidebar) - show full logo, hide icon
+.sidebar-brand-logo-full {
+  display: block !important;
+}
+
+.sidebar-brand-logo-icon {
+  display: none !important;
+}
+
+// When sidebar is toggled (collapsed) - hide full logo, show icon
+.sidebar.toggled .sidebar-brand-logo-full {
+  display: none !important;
+}
+
+.sidebar.toggled .sidebar-brand-logo-icon {
+  display: block !important;
 }
