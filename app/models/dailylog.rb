@@ -11,13 +11,21 @@ class Dailylog < ApplicationRecord
     'process' => { label: 'Process', group: 'Information' },
     'status' => { label: 'Status', group: 'Information' },
     'phase' => { label: 'Phase', group: 'Information' },
+    'addedby' => { label: 'Added By', group: 'Information' },
+    'cell' => { label: 'Cell', group: 'Information' },
+    'sub' => { label: 'Sub', group: 'Information' },
     'jobsite' => { label: 'Job Site', group: 'Location' },
     'county' => { label: 'County', group: 'Location' },
     'sector' => { label: 'Sector', group: 'Location' },
     'site' => { label: 'Site', group: 'Location' },
     'permit' => { label: 'Permit', group: 'Documents' },
     'parcel' => { label: 'Parcel', group: 'Documents' },
-    'model_code' => { label: 'Model Code', group: 'Documents' }
+    'model_code' => { label: 'Model Code', group: 'Documents' },
+    'servicedate' => { label: 'Service Date', group: 'Dates' },
+    'datecreated' => { label: 'Date Created', group: 'Dates' },
+    'dateonly' => { label: 'Date Only', group: 'Dates' },
+    'startdate' => { label: 'Start Date', group: 'Dates' },
+    'enddate' => { label: 'End Date', group: 'Dates' }
   }.freeze
 
   # Dynamic search scope with column selection
@@ -37,10 +45,22 @@ class Dailylog < ApplicationRecord
          notes LIKE :q OR
          process LIKE :q OR
          status LIKE :q OR
+         phase LIKE :q OR
+         addedby LIKE :q OR
+         cell LIKE :q OR
+         sub LIKE :q OR
          jobsite LIKE :q OR
          county LIKE :q OR
+         sector LIKE :q OR
+         site LIKE :q OR
          permit LIKE :q OR
-         parcel LIKE :q",
+         parcel LIKE :q OR
+         model_code LIKE :q OR
+         servicedate LIKE :q OR
+         CAST(datecreated AS TEXT) LIKE :q OR
+         CAST(dateonly AS TEXT) LIKE :q OR
+         CAST(startdate AS TEXT) LIKE :q OR
+         CAST(enddate AS TEXT) LIKE :q",
         q: "%#{sanitize_sql_like(query)}%"
       )
     else

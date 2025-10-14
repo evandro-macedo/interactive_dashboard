@@ -119,6 +119,8 @@ GEM
     ffi (1.17.2-arm-linux-musl)
     ffi (1.17.2-x86_64-linux-gnu)
     ffi (1.17.2-x86_64-linux-musl)
+    foreman (0.90.0)
+      thor (~> 1.4)
     fugit (1.11.2)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
@@ -414,6 +416,7 @@ DEPENDENCIES
   capybara
   debug
   dotenv-rails
+  foreman
   importmap-rails
   jbuilder
   kamal

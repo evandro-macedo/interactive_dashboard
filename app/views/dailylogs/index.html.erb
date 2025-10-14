@@ -12,7 +12,7 @@
     <i class="fas fa-sync-alt"></i>
     <% if last_sync.successful? %>
       <strong>Last updated:</strong> <%= time_ago_in_words(last_sync.synced_at) %> ago
-      (<%= number_with_delimiter(last_sync.records_synced) %> records synced in <%= last_sync.duration_ms %>ms)
+      (<%= number_with_delimiter(last_sync.records_synced) %> records synced<% if last_sync.records_added && last_sync.records_added > 0 %>, <span class="badge bg-success"><%= number_with_delimiter(last_sync.records_added) %> new</span><% end %> in <%= last_sync.duration_ms %>ms)
     <% else %>
       <strong>Sync failed:</strong> <%= time_ago_in_words(last_sync.synced_at) %> ago
       - <%= last_sync.error_message %>

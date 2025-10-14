@@ -17,7 +17,6 @@
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   position: relative;
-  cursor: help;
   max-width: 0; // Forces text-overflow to work with table-layout: fixed
 }
 
@@ -28,13 +27,28 @@
   padding: 0.75rem;
 }
 
-// Lakeshore logo styling
-.sidebar-brand-logo-full,
-.sidebar-brand-logo-icon {
-  transition: all 0.3s ease;
+// Sortable column styles
+a.sortable {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  padding: 0.75rem;
+  margin: -0.75rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &.active {
+    font-weight: 600;
+    color: #4e73df;
+  }
 }
 
-// Default state (expanded sidebar) - show full logo, hide icon
+// Lakeshore logo styling - always show full logo (sidebar never collapses)
 .sidebar-brand-logo-full {
   display: block !important;
 }
@@ -43,11 +57,16 @@
   display: none !important;
 }
 
-// When sidebar is toggled (collapsed) - hide full logo, show icon
-.sidebar.toggled .sidebar-brand-logo-full {
-  display: none !important;
+// Force sidebar to always be expanded (disable collapse functionality)
+body.sidebar-toggled .sidebar,
+.sidebar.toggled {
+  width: 14rem !important;
+  margin-left: 0 !important;
 }
 
-.sidebar.toggled .sidebar-brand-logo-icon {
-  display: block !important;
+// Ensure sidebar content always visible
+body.sidebar-toggled .sidebar .nav-item .nav-link span,
+.sidebar.toggled .nav-item .nav-link span {
+  display: inline !important;
+  opacity: 1 !important;
 }
