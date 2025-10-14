@@ -1,5 +1,9 @@
-class Dailylog < ApplicationRecord
-  # Agora herda de ApplicationRecord (banco SQLite local)
+class PostgresSourceDailylog < PostgresSourceRecord
+  self.table_name = "dailylogs"
+
+  # Disable timestamps if the external table doesn't have them
+  # Remove these lines if the table has created_at/updated_at columns
+  self.record_timestamps = false
 
   # Security: Whitelist of searchable columns with metadata
   SEARCHABLE_COLUMNS = {
@@ -29,18 +33,18 @@ class Dailylog < ApplicationRecord
     return all unless SEARCHABLE_COLUMNS.key?(column)
 
     if column == 'all'
-      # Global search across key columns (adapted for SQLite)
+      # Global search across key columns
       where(
-        "CAST(job_id AS TEXT) LIKE :q OR
-         CAST(site_number AS TEXT) LIKE :q OR
-         logtitle LIKE :q OR
-         notes LIKE :q OR
-         process LIKE :q OR
-         status LIKE :q OR
-         jobsite LIKE :q OR
-         county LIKE :q OR
-         permit LIKE :q OR
-         parcel LIKE :q",
+        "job_id::text ILIKE :q OR
+         site_number::text ILIKE :q OR
+         logtitle ILIKE :q OR
+         notes ILIKE :q OR
+         process ILIKE :q OR
+         status ILIKE :q OR
+         jobsite ILIKE :q OR
+         county ILIKE :q OR
+         permit ILIKE :q OR
+         parcel ILIKE :q",
         q: "%#{sanitize_sql_like(query)}%"
       )
     else
@@ -48,9 +52,9 @@ class Dailylog < ApplicationRecord
       column_config = SEARCHABLE_COLUMNS[column]
 
       if column_config[:numeric]
-        where("CAST(#{column} AS TEXT) LIKE ?", "%#{sanitize_sql_like(query)}%")
+        where("#{column}::text ILIKE ?", "%#{sanitize_sql_like(query)}%")
       else
-        where("#{column} LIKE ?", "%#{sanitize_sql_like(query)}%")
+        where("#{column} ILIKE ?", "%#{sanitize_sql_like(query)}%")
       end
     end
   }
@@ -58,12 +62,5 @@ class Dailylog < ApplicationRecord
   # Helper: Group columns by category for dropdown
   def self.grouped_searchable_columns
     SEARCHABLE_COLUMNS.group_by { |_, config| config[:group] }
-  end
-
-  # Helper: Info da última sincronização
-  def self.last_sync_info
-    SyncLog.where(table_name: 'dailylogs')
-           .order(synced_at: :desc)
-           .first
   end
 end

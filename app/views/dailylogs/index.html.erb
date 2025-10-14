@@ -6,6 +6,21 @@
   </a>
 </div>
 
+<!-- Sync Status Info -->
+<% if (last_sync = Dailylog.last_sync_info) %>
+  <div class="alert <%= last_sync.successful? ? 'alert-info' : 'alert-warning' %> alert-dismissible fade show mb-3" role="alert">
+    <i class="fas fa-sync-alt"></i>
+    <% if last_sync.successful? %>
+      <strong>Last updated:</strong> <%= time_ago_in_words(last_sync.synced_at) %> ago
+      (<%= number_with_delimiter(last_sync.records_synced) %> records synced in <%= last_sync.duration_ms %>ms)
+    <% else %>
+      <strong>Sync failed:</strong> <%= time_ago_in_words(last_sync.synced_at) %> ago
+      - <%= last_sync.error_message %>
+    <% end %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
 <!-- Real-time Search Form -->
 <div class="card shadow mb-3">
   <div class="card-body">
