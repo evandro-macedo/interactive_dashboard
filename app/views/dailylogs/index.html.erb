@@ -22,7 +22,7 @@
                   class="form-select"
                   data-action="change->search#search">
             <option value="all" <%= 'selected' if params[:column].blank? || params[:column] == 'all' %>>
-              🔍 All Columns
+              All Columns
             </option>
 
             <% Dailylog.grouped_searchable_columns.each do |group, columns| %>

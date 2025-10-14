@@ -13,11 +13,11 @@
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-bordered" width="100%" cellspacing="0">
+        <table class="table table-bordered table-fixed-layout" cellspacing="0">
           <thead>
             <tr>
               <% dailylogs.first.attributes.keys.each do |column| %>
-                <th><%= column.titleize %></th>
+                <th class="table-cell-nowrap"><%= column.titleize %></th>
               <% end %>
             </tr>
           </thead>
@@ -25,7 +25,7 @@
             <% dailylogs.each do |log| %>
               <tr>
                 <% log.attributes.each do |key, value| %>
-                  <td><%= value.to_s.truncate(100) %></td>
+                  <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= value.to_s.truncate(100) %></td>
                 <% end %>
               </tr>
             <% end %>
