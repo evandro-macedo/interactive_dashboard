@@ -15,18 +15,9 @@ class DailylogsController < ApplicationController
                          .page(params[:page])
                          .per(25)
 
-    respond_to do |format|
-      format.html # Regular page load
-      format.turbo_stream {
-        # ✅ Use UPDATE not REPLACE (lessons-learned pattern)
-        # Preserves wrapper and allows consecutive updates
-        render turbo_stream: turbo_stream.update(
-          "dailylogs_table",
-          partial: "table",
-          locals: { dailylogs: @dailylogs }
-        )
-      }
-    end
+    # Turbo Frame Navigation Pattern:
+    # Links with data-turbo-frame automatically extract the matching frame from HTML response
+    # No need for explicit format.turbo_stream - Turbo handles it automatically
   rescue StandardError => e
     flash[:alert] = "Error connecting to PostgreSQL: #{e.message}"
     @dailylogs = Dailylog.page(1).per(25)

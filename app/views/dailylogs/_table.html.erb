@@ -31,7 +31,7 @@
             <% dailylogs.each do |log| %>
               <tr>
                 <% log.attributes.each do |key, value| %>
-                  <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= value.to_s.truncate(100) %></td>
+                  <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= value.to_s.truncate(250) %></td>
                 <% end %>
               </tr>
             <% end %>
