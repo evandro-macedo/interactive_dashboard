@@ -97,7 +97,7 @@
 <% end %>
 
 <!-- ✅ Stable Wrapper Pattern (lessons-learned) -->
-<div id="dailylogs_search_wrapper">
+<div id="dailylogs_search_wrapper" data-controller="table-scroll">
   <turbo-frame id="dailylogs_table">
     <%= render "table", dailylogs: @dailylogs %>
   </turbo-frame>

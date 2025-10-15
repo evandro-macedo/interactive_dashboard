@@ -12,11 +12,11 @@
       </div>
     </div>
     <div class="card-body">
-      <div class="table-responsive">
+      <div class="table-responsive" data-table-scroll-target="container">
         <table class="table table-bordered table-fixed-layout" cellspacing="0">
           <thead>
             <tr>
-              <% dailylogs.first.attributes.keys.each do |column| %>
+              <% DailylogsController::VISIBLE_COLUMNS.each do |column| %>
                 <th class="table-cell-nowrap">
                   <% if DailylogsController::SORTABLE_COLUMNS.include?(column) %>
                     <%= sortable_column(column) %>
@@ -30,8 +30,9 @@
           <tbody>
             <% dailylogs.each do |log| %>
               <tr>
-                <% log.attributes.each do |key, value| %>
-                  <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= value.to_s.truncate(250) %></td>
+                <% DailylogsController::VISIBLE_COLUMNS.each do |column| %>
+                  <% value = log.send(column) %>
+                  <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= format_table_value(column, value) %></td>
                 <% end %>
               </tr>
             <% end %>

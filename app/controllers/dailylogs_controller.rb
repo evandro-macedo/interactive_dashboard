@@ -7,6 +7,33 @@ class DailylogsController < ApplicationController
     created_at updated_at
   ].freeze
 
+  # Visible columns in display order (priority columns first)
+  VISIBLE_COLUMNS = %w[
+    id
+    job_id
+    process
+    status
+    addedby
+    datecreated
+    servicedate
+    logtitle
+    phase
+    county
+    sub
+    site_number
+    notes
+    jobsite
+    sector
+    site
+    permit
+    parcel
+    cell
+    dateonly
+    enddate
+    startdate
+    status_category
+  ].freeze
+
   def index
     # Data Layer Consistency: Use same scope for initial render and turbo updates
     # Security: search_in_column validates column against whitelist
@@ -29,8 +56,13 @@ class DailylogsController < ApplicationController
     sort_column = params[:sort].presence
     sort_direction = params[:direction].presence
 
+    # Default sort: datecreated DESC (most recent first)
+    if sort_column.blank?
+      return relation.order(datecreated: :desc)
+    end
+
     # Security: Only allow whitelisted columns
-    return relation unless SORTABLE_COLUMNS.include?(sort_column)
+    return relation.order(datecreated: :desc) unless SORTABLE_COLUMNS.include?(sort_column)
 
     # Validate direction
     direction = %w[asc desc].include?(sort_direction) ? sort_direction : "asc"
