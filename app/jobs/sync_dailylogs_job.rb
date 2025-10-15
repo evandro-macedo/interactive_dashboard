@@ -5,8 +5,12 @@ class SyncDailylogsJob < ApplicationJob
     start_time = Time.current
     records_synced = 0
     records_added = 0
+    new_record_ids = []
 
     begin
+      # Capturar IDs existentes ANTES da sincronização
+      existing_job_ids = Dailylog.pluck(:job_id).to_set
+
       # Buscar última sincronização BEM-SUCEDIDA para comparação
       last_sync = SyncLog.where(table_name: "dailylogs")
                          .where(error_message: nil)
@@ -61,8 +65,22 @@ class SyncDailylogsJob < ApplicationJob
         end
       end
 
-      # Calcular quantos registros novos foram adicionados
-      records_added = [records_synced - previous_count, 0].max
+      # Identificar novos registros (job_ids que não existiam antes)
+      if records_synced > 0
+        new_job_ids = postgres_records.map(&:job_id) - existing_job_ids.to_a
+
+        if new_job_ids.any?
+          new_records = Dailylog.where(job_id: new_job_ids)
+          new_record_ids = new_records.pluck(:id)
+          records_added = new_records.count
+
+          Rails.logger.info "Detected #{records_added} new records with job_ids: #{new_job_ids.first(10).inspect}..."
+        else
+          records_added = 0
+        end
+      else
+        records_added = 0
+      end
 
       # Registrar sucesso
       duration = ((Time.current - start_time) * 1000).to_i
@@ -75,6 +93,13 @@ class SyncDailylogsJob < ApplicationJob
       )
 
       Rails.logger.info "Dailylogs synced: #{records_synced} records (#{records_added} new) in #{duration}ms"
+
+      # Processar webhooks para novos registros
+      if new_record_ids.any?
+        Rails.logger.info "Processing webhooks for #{new_record_ids.count} new records..."
+        new_records = Dailylog.where(id: new_record_ids)
+        NewRecordsDetectorService.new(new_records).process_webhooks
+      end
 
     rescue StandardError => e
       # Registrar erro

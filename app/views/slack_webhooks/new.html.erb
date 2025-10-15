@@ -1,0 +1,51 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0 text-gray-800">New Slack Webhook</h1>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          <i class="fab fa-slack"></i> Configure New Webhook
+        </h6>
+      </div>
+      <div class="card-body">
+        <%= render 'form', slack_webhook: @slack_webhook %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-info">
+          <i class="fas fa-info-circle"></i> How to Get a Slack Webhook URL
+        </h6>
+      </div>
+      <div class="card-body">
+        <ol>
+          <li class="mb-2">
+            Go to <a href="https://api.slack.com/apps" target="_blank" class="text-decoration-none">
+              https://api.slack.com/apps <i class="fas fa-external-link-alt small"></i>
+            </a>
+          </li>
+          <li class="mb-2">Create a new app or select an existing one</li>
+          <li class="mb-2">Navigate to <strong>Features → Incoming Webhooks</strong></li>
+          <li class="mb-2">Toggle <strong>Activate Incoming Webhooks</strong> to ON</li>
+          <li class="mb-2">Click <strong>Add New Webhook to Workspace</strong></li>
+          <li class="mb-2">Select the channel where messages should be posted</li>
+          <li class="mb-2">Copy the webhook URL and paste it above</li>
+        </ol>
+
+        <div class="alert alert-warning mt-3" role="alert">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Security Note:</strong> Keep your webhook URL secret. Anyone with this URL can post messages to your Slack channel.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

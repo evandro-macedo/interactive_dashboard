@@ -1,0 +1,71 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0 text-gray-800">Edit Slack Webhook</h1>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          <i class="fab fa-slack"></i> Update Webhook Configuration
+        </h6>
+      </div>
+      <div class="card-body">
+        <%= render 'form', slack_webhook: @slack_webhook %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @slack_webhook.webhook_trigger_logs.any? %>
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-info">
+            <i class="fas fa-history"></i> Recent Activity
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Records</th>
+                  <th>Status</th>
+                  <th>Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @slack_webhook.webhook_trigger_logs.recent.limit(10).each do |log| %>
+                  <tr>
+                    <td>
+                      <small class="text-muted">
+                        <%= log.triggered_at.strftime("%Y-%m-%d %H:%M:%S") %>
+                      </small>
+                    </td>
+                    <td>
+                      <span class="badge badge-primary"><%= log.records_count %></span>
+                    </td>
+                    <td>
+                      <span class="badge badge-<%= log.status_badge %>">
+                        <%= log.status_text %>
+                      </span>
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        <%= log.response_status %>
+                      </small>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

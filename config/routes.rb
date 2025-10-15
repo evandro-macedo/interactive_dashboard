@@ -12,6 +12,14 @@ Rails.application.routes.draw do
   # Data Lake routes
   resources :dailylogs, only: [:index]
 
+  # Slack Webhooks routes
+  resources :slack_webhooks do
+    member do
+      post :test_webhook
+      patch :toggle_active
+    end
+  end
+
   # Defines the root path route ("/")
   root "dailylogs#index"
 end

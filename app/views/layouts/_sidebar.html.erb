@@ -36,6 +36,22 @@
   </li>
 
   <!-- Divider -->
+  <hr class="sidebar-divider">
+
+  <!-- Heading -->
+  <div class="sidebar-heading">
+    Integrations
+  </div>
+
+  <!-- Nav Item - Slack Webhooks -->
+  <li class="nav-item <%= 'active' if controller_name == 'slack_webhooks' %>">
+    <%= link_to slack_webhooks_path, class: 'nav-link' do %>
+      <i class="fab fa-fw fa-slack"></i>
+      <span>Slack Webhooks</span>
+    <% end %>
+  </li>
+
+  <!-- Divider -->
   <hr class="sidebar-divider d-none d-md-block">
 
 </ul>
