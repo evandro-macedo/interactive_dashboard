@@ -35,6 +35,14 @@
     <% end %>
   </li>
 
+  <!-- Nav Item - Construction Overview -->
+  <li class="nav-item <%= 'active' if controller_name == 'construction_overview' %>">
+    <%= link_to construction_overview_index_path, class: 'nav-link' do %>
+      <i class="fas fa-fw fa-hard-hat"></i>
+      <span>Construction Overview</span>
+    <% end %>
+  </li>
+
   <!-- Divider -->
   <hr class="sidebar-divider">
 

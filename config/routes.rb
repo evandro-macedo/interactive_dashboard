@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   # Data Lake routes
   resources :dailylogs, only: [:index]
 
+  # Construction Overview
+  resources :construction_overview, only: [:index]
+
   # Slack Webhooks routes
   resources :slack_webhooks do
     member do

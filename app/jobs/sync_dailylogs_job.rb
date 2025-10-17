@@ -94,6 +94,9 @@ class SyncDailylogsJob < ApplicationJob
 
       Rails.logger.info "Dailylogs synced: #{records_synced} records (#{records_added} new) in #{duration}ms"
 
+      # Broadcast Turbo Stream update to Construction Overview page
+      broadcast_construction_overview_update
+
       # Processar webhooks para novos registros
       if new_record_ids.any?
         Rails.logger.info "Processing webhooks for #{new_record_ids.count} new records..."
@@ -119,5 +122,40 @@ class SyncDailylogsJob < ApplicationJob
       # Re-raise para Solid Queue retry
       raise e
     end
+  end
+
+  private
+
+  def broadcast_construction_overview_update
+    # Recalculate stats for Construction Overview
+    one_month_ago = 1.month.ago
+
+    # Use .count which returns a Hash: {"phase" => count}
+    stats_hash = Dailylog
+      .where("datecreated >= ?", one_month_ago)
+      .group(:phase)
+      .count
+
+    # Sort by count descending - returns array of [phase, count]
+    stats_by_phase = stats_hash.sort_by { |_, count| -count }
+    total_records = stats_hash.values.sum
+    last_sync = Dailylog.last_sync_info
+
+    # Broadcast the updated partial to all connected clients
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "construction_overview",
+      target: "construction_stats",
+      partial: "construction_overview/stats_table",
+      locals: {
+        stats_by_phase: stats_by_phase,
+        total_records: total_records,
+        last_sync: last_sync
+      }
+    )
+
+    Rails.logger.info "Broadcasted Construction Overview update via Turbo Stream"
+  rescue StandardError => e
+    Rails.logger.error "Failed to broadcast Construction Overview update: #{e.message}"
+    # Don't re-raise - broadcast failure shouldn't fail the job
   end
 end

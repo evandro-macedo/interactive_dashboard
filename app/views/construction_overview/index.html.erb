@@ -1,0 +1,30 @@
+<%# Subscribe to Turbo Stream broadcasts for automatic updates %>
+<%= turbo_stream_from "construction_overview" %>
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0 text-gray-800">Construction Overview</h1>
+  <div class="text-muted">
+    <i class="fas fa-clock"></i> Last 30 Days
+  </div>
+</div>
+
+<!-- Sync Status Info -->
+<% if @last_sync %>
+  <div class="alert <%= @last_sync.successful? ? 'alert-info' : 'alert-warning' %> alert-dismissible fade show mb-3" role="alert">
+    <i class="fas fa-sync-alt"></i>
+    <% if @last_sync.successful? %>
+      <strong>Last updated:</strong> <%= time_ago_in_words(@last_sync.synced_at) %> ago
+      (<%= number_with_delimiter(@last_sync.records_synced) %> records synced<% if @last_sync.records_added && @last_sync.records_added > 0 %>, <span class="badge bg-success"><%= number_with_delimiter(@last_sync.records_added) %> new</span><% end %>)
+    <% else %>
+      <strong>Sync failed:</strong> <%= time_ago_in_words(@last_sync.synced_at) %> ago
+      - <%= @last_sync.error_message %>
+    <% end %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
+<!-- Statistics Table (will be auto-updated via Turbo Streams) -->
+<div id="construction_stats">
+  <%= render "stats_table" %>
+</div>
