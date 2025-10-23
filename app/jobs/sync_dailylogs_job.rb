@@ -127,33 +127,20 @@ class SyncDailylogsJob < ApplicationJob
   private
 
   def broadcast_construction_overview_update
-    # Recalculate stats for Construction Overview
-    one_month_ago = 1.month.ago
-
-    # Use .count which returns a Hash: {"phase" => count}
-    stats_hash = Dailylog
-      .where("datecreated >= ?", one_month_ago)
-      .group(:phase)
-      .count
-
-    # Sort by count descending - returns array of [phase, count]
-    stats_by_phase = stats_hash.sort_by { |_, count| -count }
-    total_records = stats_hash.values.sum
-    last_sync = Dailylog.last_sync_info
+    # Calculate basic stats for Construction Overview
+    total_records = Dailylog.count
 
     # Broadcast the updated partial to all connected clients
     Turbo::StreamsChannel.broadcast_replace_to(
       "construction_overview",
-      target: "construction_stats",
-      partial: "construction_overview/stats_table",
+      target: "construction_overview_content",
+      partial: "construction_overview/content",
       locals: {
-        stats_by_phase: stats_by_phase,
-        total_records: total_records,
-        last_sync: last_sync
+        total_records: total_records
       }
     )
 
-    Rails.logger.info "Broadcasted Construction Overview update via Turbo Stream"
+    Rails.logger.info "Broadcasted Construction Overview update via Turbo Stream (#{total_records} records)"
   rescue StandardError => e
     Rails.logger.error "Failed to broadcast Construction Overview update: #{e.message}"
     # Don't re-raise - broadcast failure shouldn't fail the job

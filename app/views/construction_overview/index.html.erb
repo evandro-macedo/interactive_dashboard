@@ -4,9 +4,6 @@
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
   <h1 class="h3 mb-0 text-gray-800">Construction Overview</h1>
-  <div class="text-muted">
-    <i class="fas fa-clock"></i> Last 30 Days
-  </div>
 </div>
 
 <!-- Sync Status Info -->
@@ -24,7 +21,7 @@
   </div>
 <% end %>
 
-<!-- Statistics Table (will be auto-updated via Turbo Streams) -->
-<div id="construction_stats">
-  <%= render "stats_table" %>
+<!-- Main Content (will be auto-updated via Turbo Streams) -->
+<div id="construction_overview_content">
+  <%= render "content" %>
 </div>
