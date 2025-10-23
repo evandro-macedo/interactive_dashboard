@@ -1,0 +1,64 @@
+<% if dailylogs_fmea.any? %>
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 font-weight-bold text-primary">
+        FMEA Records
+      </h6>
+      <div class="text-muted">
+        Showing <strong><%= dailylogs_fmea.offset_value + 1 %></strong> to
+        <strong><%= [dailylogs_fmea.offset_value + dailylogs_fmea.length, dailylogs_fmea.total_count].min %></strong> of
+        <strong><%= number_with_delimiter(dailylogs_fmea.total_count) %></strong> records
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive" data-table-scroll-target="container">
+        <table class="table table-bordered table-fixed-layout" cellspacing="0">
+          <thead>
+            <tr>
+              <% DailylogsController::FMEA_VISIBLE_COLUMNS.each do |column| %>
+                <th class="table-cell-nowrap">
+                  <% if DailylogsController::FMEA_SORTABLE_COLUMNS.include?(column) %>
+                    <%= sortable_fmea_column(column) %>
+                  <% else %>
+                    <%= column.titleize %>
+                  <% end %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% dailylogs_fmea.each do |log| %>
+              <tr>
+                <% DailylogsController::FMEA_VISIBLE_COLUMNS.each do |column| %>
+                  <% value = log.send(column) %>
+                  <td class="table-cell-nowrap" title="<%= value.to_s %>">
+                    <%= format_table_value(column, value) %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate dailylogs_fmea,
+            params: { fmea_q: params[:fmea_q], fmea_column: params[:fmea_column],
+                      fmea_sort: params[:fmea_sort], fmea_direction: params[:fmea_direction] },
+            param_name: :fmea_page %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="alert alert-warning mb-0" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        No FMEA records found
+        <% if params[:fmea_q].present? %>
+          matching "<strong><%= params[:fmea_q] %></strong>"
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -53,6 +53,7 @@ class SyncDailylogsJob < ApplicationJob
             servicedate: pg_record.servicedate,
             startdate: pg_record.startdate,
             sub: pg_record.sub,
+            hash_unique: pg_record.hash_unique,
             created_at: Time.current,
             updated_at: Time.current
           }
@@ -94,15 +95,11 @@ class SyncDailylogsJob < ApplicationJob
 
       Rails.logger.info "Dailylogs synced: #{records_synced} records (#{records_added} new) in #{duration}ms"
 
+      # Sync dailylogs_fmea table
+      sync_dailylogs_fmea
+
       # Broadcast Turbo Stream update to Construction Overview page
       broadcast_construction_overview_update
-
-      # Processar webhooks para novos registros
-      if new_record_ids.any?
-        Rails.logger.info "Processing webhooks for #{new_record_ids.count} new records..."
-        new_records = Dailylog.where(id: new_record_ids)
-        NewRecordsDetectorService.new(new_records).process_webhooks
-      end
 
     rescue StandardError => e
       # Registrar erro
@@ -125,6 +122,87 @@ class SyncDailylogsJob < ApplicationJob
   end
 
   private
+
+  def sync_dailylogs_fmea
+    start_time = Time.current
+    records_synced = 0
+
+    begin
+      # Buscar registros FMEA do PostgreSQL externo
+      postgres_fmea_records = PostgresSourceDailylogFmea.all.to_a
+
+      Rails.logger.info "Syncing #{postgres_fmea_records.size} FMEA records from PostgreSQL to SQLite..."
+
+      # Sincronizar dados
+      ActiveRecord::Base.transaction do
+        # Limpar tabela SQLite local
+        DailylogFmea.delete_all
+
+        # Preparar dados para inserção em batch
+        fmea_records_to_insert = postgres_fmea_records.map do |pg_record|
+          {
+            job_id: pg_record.job_id,
+            site_number: pg_record.site_number,
+            process: pg_record.process,
+            status: pg_record.status,
+            phase: pg_record.phase,
+            failure_group: pg_record.failure_group,
+            failure_item: pg_record.failure_item,
+            is_multitag: pg_record.is_multitag,
+            not_report: pg_record.not_report,
+            checklist_done: pg_record.checklist_done,
+            fees: pg_record.fees,
+            datecreated: pg_record.datecreated,
+            addedby: pg_record.addedby,
+            logtitle: pg_record.logtitle,
+            notes: pg_record.notes,
+            county: pg_record.county,
+            sector: pg_record.sector,
+            cell: pg_record.cell,
+            jobsite: pg_record.jobsite,
+            site: pg_record.site,
+            permit: pg_record.permit,
+            parcel: pg_record.parcel,
+            model_code: pg_record.model_code,
+            created_at: Time.current,
+            updated_at: Time.current
+          }
+        end
+
+        # Inserir todos de uma vez usando insert_all (muito mais rápido)
+        unless fmea_records_to_insert.empty?
+          DailylogFmea.insert_all(fmea_records_to_insert)
+          records_synced = fmea_records_to_insert.size
+        end
+      end
+
+      # Registrar sucesso
+      duration = ((Time.current - start_time) * 1000).to_i
+      SyncLog.create!(
+        table_name: "dailylogs_fmea",
+        records_synced: records_synced,
+        synced_at: Time.current,
+        duration_ms: duration
+      )
+
+      Rails.logger.info "Dailylogs FMEA synced: #{records_synced} records in #{duration}ms"
+    rescue StandardError => e
+      # Registrar erro
+      duration = ((Time.current - start_time) * 1000).to_i
+      SyncLog.create!(
+        table_name: "dailylogs_fmea",
+        records_synced: 0,
+        synced_at: Time.current,
+        duration_ms: duration,
+        error_message: e.message
+      )
+
+      Rails.logger.error "Dailylogs FMEA sync failed: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      # Don't re-raise - FMEA sync failure shouldn't fail the whole job
+    end
+  end
 
   def broadcast_construction_overview_update
     # Calculate basic stats for Construction Overview

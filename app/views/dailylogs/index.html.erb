@@ -102,3 +102,101 @@
     <%= render "table", dailylogs: @dailylogs %>
   </turbo-frame>
 </div>
+
+<!-- ==================== FMEA SECTION ==================== -->
+<hr class="my-5">
+
+<!-- Page Heading - FMEA -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0 text-gray-800">FMEA Records - Data Lake</h1>
+</div>
+
+<!-- Sync Status Info - FMEA -->
+<% if (fmea_sync = DailylogFmea.last_sync_info) %>
+  <div class="alert <%= fmea_sync.successful? ? 'alert-info' : 'alert-warning' %> alert-dismissible fade show mb-3" role="alert">
+    <i class="fas fa-sync-alt"></i>
+    <% if fmea_sync.successful? %>
+      <strong>Last updated:</strong> <%= time_ago_in_words(fmea_sync.synced_at) %> ago
+      (<%= number_with_delimiter(fmea_sync.records_synced) %> records synced in <%= fmea_sync.duration_ms %>ms)
+    <% else %>
+      <strong>Sync failed:</strong> <%= time_ago_in_words(fmea_sync.synced_at) %> ago
+      - <%= fmea_sync.error_message %>
+    <% end %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
+<!-- Real-time Search Form - FMEA -->
+<div class="card shadow mb-3">
+  <div class="card-body">
+    <%= form_with url: dailylogs_path, method: :get,
+                  data: {
+                    controller: "search",
+                    turbo_frame: "dailylogs_fmea_table",
+                    search_target: "form"
+                  } do |f| %>
+      <div class="row g-2">
+        <!-- Column Selector -->
+        <div class="col-md-3">
+          <select name="fmea_column"
+                  class="form-select"
+                  data-action="change->search#search">
+            <option value="all" <%= 'selected' if params[:fmea_column].blank? || params[:fmea_column] == 'all' %>>
+              All Columns
+            </option>
+
+            <% DailylogFmea.grouped_searchable_columns.each do |group, columns| %>
+              <% next if group.nil? %>
+              <optgroup label="<%= group %>">
+                <% columns.each do |key, config| %>
+                  <option value="<%= key %>" <%= 'selected' if params[:fmea_column] == key %>>
+                    <%= config[:label] %>
+                  </option>
+                <% end %>
+              </optgroup>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Search Input -->
+        <div class="col-md-7">
+          <input type="text"
+                 name="fmea_q"
+                 value="<%= params[:fmea_q] %>"
+                 class="form-control"
+                 placeholder="Search FMEA records..."
+                 data-action="input->search#search"
+                 autocomplete="off">
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-md-2">
+          <div class="btn-group w-100">
+            <button class="btn btn-primary" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+            <% if params[:fmea_q].present? %>
+              <%= link_to dailylogs_path, class: "btn btn-outline-secondary", title: "Clear search" do %>
+                <i class="fas fa-times"></i>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search hint -->
+      <% if params[:fmea_q].present? && params[:fmea_column] && params[:fmea_column] != 'all' %>
+        <small class="text-muted mt-2 d-block">
+          Searching in: <strong><%= DailylogFmea::SEARCHABLE_COLUMNS.dig(params[:fmea_column], :label) %></strong>
+        </small>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<!-- FMEA Table Wrapper -->
+<div id="dailylogs_fmea_wrapper" data-controller="table-scroll">
+  <turbo-frame id="dailylogs_fmea_table">
+    <%= render "table_fmea", dailylogs_fmea: @dailylogs_fmea %>
+  </turbo-frame>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_15_030147) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_23_213144) do
   create_table "cleaning_logs", force: :cascade do |t|
     t.string "table_name", null: false
     t.integer "records_cleaned", default: 0
@@ -70,12 +70,53 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_030147) do
     t.datetime "startdate"
     t.text "sub"
     t.string "status_category", default: "nao_categorizado"
+    t.text "hash_unique"
+    t.index ["datecreated"], name: "index_dailylogs_on_datecreated"
+    t.index ["hash_unique"], name: "index_dailylogs_on_hash_unique"
+    t.index ["job_id", "process", "datecreated"], name: "index_dailylogs_on_job_process_date"
+    t.index ["job_id", "status", "datecreated"], name: "index_dailylogs_on_job_status_date"
     t.index ["job_id"], name: "index_dailylogs_on_job_id"
     t.index ["jobsite"], name: "index_dailylogs_on_jobsite"
     t.index ["logtitle"], name: "index_dailylogs_on_logtitle"
+    t.index ["phase"], name: "index_dailylogs_on_phase"
+    t.index ["process"], name: "index_dailylogs_on_process"
     t.index ["site_number"], name: "index_dailylogs_on_site_number"
     t.index ["status"], name: "index_dailylogs_on_status"
     t.index ["status_category"], name: "index_dailylogs_on_status_category"
+  end
+
+  create_table "dailylogs_fmea", force: :cascade do |t|
+    t.integer "job_id"
+    t.integer "site_number"
+    t.text "process"
+    t.text "status"
+    t.text "phase"
+    t.text "failure_group"
+    t.text "failure_item"
+    t.boolean "is_multitag"
+    t.boolean "not_report"
+    t.boolean "checklist_done"
+    t.boolean "fees"
+    t.date "datecreated"
+    t.text "addedby"
+    t.text "logtitle"
+    t.text "notes"
+    t.text "county"
+    t.text "sector"
+    t.text "cell"
+    t.text "jobsite"
+    t.text "site"
+    t.text "permit"
+    t.text "parcel"
+    t.text "model_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["datecreated"], name: "index_dailylogs_fmea_on_datecreated"
+    t.index ["failure_group"], name: "index_dailylogs_fmea_on_failure_group"
+    t.index ["job_id", "process"], name: "index_dailylogs_fmea_on_job_id_and_process"
+    t.index ["job_id"], name: "index_dailylogs_fmea_on_job_id"
+    t.index ["not_report"], name: "index_dailylogs_fmea_on_not_report"
+    t.index ["process", "status"], name: "index_dailylogs_fmea_on_process_and_status"
   end
 
   create_table "data_cleaning_rules", force: :cascade do |t|
@@ -89,22 +130,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_030147) do
     t.index ["source_column", "source_value"], name: "index_data_cleaning_rules_on_column_and_value", unique: true
     t.index ["source_column"], name: "index_data_cleaning_rules_on_source_column"
     t.index ["target_category"], name: "index_data_cleaning_rules_on_target_category"
-  end
-
-  create_table "slack_webhooks", force: :cascade do |t|
-    t.string "name", null: false
-    t.text "webhook_url", null: false
-    t.string "process", null: false
-    t.string "status", null: false
-    t.boolean "active", default: true, null: false
-    t.text "message_template"
-    t.datetime "last_triggered_at"
-    t.boolean "test_mode", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["active"], name: "index_slack_webhooks_on_active"
-    t.index ["name"], name: "index_slack_webhooks_on_name", unique: true
-    t.index ["process", "status"], name: "index_slack_webhooks_on_process_and_status"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -255,21 +280,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_030147) do
     t.index ["table_name"], name: "index_sync_logs_on_table_name"
   end
 
-  create_table "webhook_trigger_logs", force: :cascade do |t|
-    t.integer "slack_webhook_id", null: false
-    t.text "dailylog_ids"
-    t.integer "records_count", default: 0, null: false
-    t.boolean "success", default: false, null: false
-    t.integer "response_code"
-    t.string "error_message"
-    t.datetime "triggered_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["slack_webhook_id"], name: "index_webhook_trigger_logs_on_slack_webhook_id"
-    t.index ["success"], name: "index_webhook_trigger_logs_on_success"
-    t.index ["triggered_at"], name: "index_webhook_trigger_logs_on_triggered_at"
-  end
-
   add_foreign_key "cleaning_rules", "status_categories"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -277,5 +287,4 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_030147) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "webhook_trigger_logs", "slack_webhooks"
 end
