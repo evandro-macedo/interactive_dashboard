@@ -1,0 +1,55 @@
+<%
+  # Calcular métricas agregadas dos reports pendentes
+
+  # 1. Total de Reports (após filtros FMEA da Query 10)
+  total_reports = detail.count
+
+  # 2. Casas Afetadas (casas únicas com reports)
+  total_casas_afetadas = detail.map { |r| r['job_id'] }.uniq.count
+
+  # 3. Phase mais afetada (maior número de reports)
+  most_affected_phase = summary.max_by { |s| s['total_reports_pendentes'].to_i }
+
+  # 4. Percentual do Total de Casas (assumindo ~280 casas ativas no sistema)
+  # Para cálculo exato, podemos buscar do @phase_summary se disponível
+  total_casas_sistema = 280  # Valor aproximado, pode ser parametrizado
+  percentage_casas = if total_casas_sistema > 0
+    ((total_casas_afetadas.to_f / total_casas_sistema) * 100).round(1)
+  else
+    0
+  end
+
+  # Definir métricas usando o componente reutilizável
+  metrics = [
+    {
+      title: "Total de Reports",
+      value: total_reports,
+      subtitle: "Pendentes de checklist",
+      icon: "fa-clipboard-list",
+      color: "warning"
+    },
+    {
+      title: "Phase Crítica",
+      value: most_affected_phase&.dig('phase_atual')&.gsub('Phase ', '') || '-',
+      subtitle: "Maior número",
+      icon: "fa-exclamation-triangle",
+      color: "danger"
+    },
+    {
+      title: "Casas Afetadas",
+      value: total_casas_afetadas,
+      subtitle: "Com reports pendentes",
+      icon: "fa-home",
+      color: "info"
+    },
+    {
+      title: "% do Total",
+      value: "#{percentage_casas}%",
+      subtitle: "Das casas ativas",
+      icon: "fa-percentage",
+      color: "secondary"
+    }
+  ]
+%>
+
+<%= render "shared/metrics_indicators", metrics: metrics %>

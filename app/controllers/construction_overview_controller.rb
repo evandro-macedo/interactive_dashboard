@@ -41,6 +41,26 @@ class ConstructionOverviewController < ApplicationController
     end
 
     # ========================================================================
+    # GRUPO C: REPORTS SEM CHECKLIST DONE (Queries 9-10)
+    # ========================================================================
+
+    # Query 9: Resumo de reports pendentes por phase
+    @pending_reports_summary = @service.pending_reports_summary
+
+    # Query 10: Lista detalhada de reports pendentes (com 5 regras FMEA)
+    @pending_reports_detail = @service.pending_reports_detail
+
+    # Filtro opcional por phase (Grupo C)
+    @selected_phase_reports = params[:phase_reports]
+
+    # Aplicar filtro se phase selecionada
+    if @selected_phase_reports.present?
+      @pending_reports_detail = @pending_reports_detail.select do |report|
+        report['phase_atual'] == @selected_phase_reports
+      end
+    end
+
+    # ========================================================================
     # DADOS GERAIS
     # ========================================================================
 

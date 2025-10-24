@@ -160,6 +160,13 @@ h5, .h5 { font-size: 1.1rem; }
   border-bottom: 3px solid var(--phase-3-light);
 }
 
+/* Header claro para seção de reports */
+.card-header.header-warning-light {
+  background: #fff8e1 !important; /* Amarelo muito claro */
+  color: #f57c00 !important; /* Laranja escuro */
+  border-bottom: 3px solid #ffc107; /* Amarelo dourado */
+}
+
 /* Botões em headers claros - atualizado para melhor contraste */
 .card-header .btn-outline-secondary,
 .card-header .btn-outline-light {
@@ -240,19 +247,22 @@ h5, .h5 { font-size: 1.1rem; }
 }
 
 [data-controller="construction-overview"],
-[data-controller="failed-inspections"] {
+[data-controller="failed-inspections"],
+[data-controller="pending-reports"] {
   max-height: 280px;
 }
 
 /* Gráficos clicáveis - cursor pointer */
 canvas[data-failed-inspections-target="canvas"],
-canvas[data-construction-overview-target="canvas"] {
+canvas[data-construction-overview-target="canvas"],
+canvas[data-pending-reports-target="canvas"] {
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 canvas[data-failed-inspections-target="canvas"]:hover,
-canvas[data-construction-overview-target="canvas"]:hover {
+canvas[data-construction-overview-target="canvas"]:hover,
+canvas[data-pending-reports-target="canvas"]:hover {
   opacity: 0.9;
 }
 
@@ -426,6 +436,12 @@ th.sortable.sorted-desc::after {
   background-color: var(--dashboard-gray-light) !important;
   color: var(--dashboard-gray-dark) !important;
   border: 1px solid var(--dashboard-border);
+}
+
+.badge-orange {
+  background-color: #ffeaa7 !important; /* Laranja claro pastel */
+  color: #d63031 !important; /* Texto vermelho-escuro para contraste */
+  border: 1px solid #fdcb6e;
 }
 
 /* ============================================================================

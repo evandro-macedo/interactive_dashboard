@@ -1,0 +1,45 @@
+<%# Accept variables as locals (from broadcast) or instance variables (from controller) %>
+<% pending_reports_summary ||= @pending_reports_summary %>
+<% pending_reports_detail ||= @pending_reports_detail %>
+<% selected_phase_reports ||= @selected_phase_reports %>
+
+<!-- Grupo C: Reports Sem Checklist Done -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card shadow">
+      <div class="card-header py-4 header-warning-light">
+        <h6 class="m-0 font-weight-bold">
+          <i class="fas fa-clipboard-list"></i>
+          Reports Sem Checklist Done
+        </h6>
+      </div>
+      <div class="card-body p-4">
+        <!-- Linha 1: Indicadores de Métricas (Full Width) -->
+        <div class="row g-3 mb-4">
+          <%= render "construction_overview/pending_reports_metrics",
+                      summary: pending_reports_summary,
+                      detail: pending_reports_detail %>
+        </div>
+
+        <!-- Linha 2: Tabela + Gráfico -->
+        <div class="row g-4">
+          <!-- Coluna Esquerda: Tabela Detalhada (8 colunas) -->
+          <div class="col-lg-8">
+            <%= turbo_frame_tag "pending_reports_table" do %>
+              <%= render "construction_overview/pending_reports_table",
+                          reports: pending_reports_detail,
+                          selected_phase: selected_phase_reports %>
+            <% end %>
+          </div>
+
+          <!-- Coluna Direita: Gráfico de Distribuição (4 colunas) -->
+          <div class="col-lg-4">
+            <%= render "construction_overview/pending_reports_chart",
+                        summary: pending_reports_summary,
+                        selected_phase: selected_phase_reports %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

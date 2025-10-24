@@ -45,4 +45,30 @@ module ConstructionOverviewHelper
       concat " #{dias}d"
     end
   end
+
+  def days_open_badge(days)
+    return '-' if days.blank?
+
+    days = days.to_i
+
+    # Badge com cores baseadas em tempo: verde (<15), amarelo (15-30), laranja (30-60), vermelho (>60)
+    if days > 60
+      color = 'danger'
+      icon = 'fas fa-exclamation-circle'
+    elsif days > 30
+      color = 'orange'  # Usar CSS customizado para laranja
+      icon = 'fas fa-exclamation-triangle'
+    elsif days >= 15
+      color = 'warning'
+      icon = 'fas fa-clock'
+    else
+      color = 'success'
+      icon = 'fas fa-check-circle'
+    end
+
+    content_tag :span, class: "badge badge-#{color}" do
+      concat content_tag(:i, '', class: icon)
+      concat " #{days} dias"
+    end
+  end
 end

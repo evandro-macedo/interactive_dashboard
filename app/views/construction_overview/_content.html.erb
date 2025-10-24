@@ -6,6 +6,9 @@
 <% failed_inspections_summary ||= @failed_inspections_summary %>
 <% failed_inspections_detail ||= @failed_inspections_detail %>
 <% selected_phase_inspections ||= @selected_phase_inspections %>
+<% pending_reports_summary ||= @pending_reports_summary %>
+<% pending_reports_detail ||= @pending_reports_detail %>
+<% selected_phase_reports ||= @selected_phase_reports %>
 
 <!-- ========================================================================
      GRUPO A: CASAS ATIVAS
@@ -47,3 +50,11 @@
             failed_inspections_summary: failed_inspections_summary,
             failed_inspections_detail: failed_inspections_detail,
             selected_phase_inspections: selected_phase_inspections %>
+
+<!-- ========================================================================
+     GRUPO C: REPORTS SEM CHECKLIST DONE
+     ======================================================================== -->
+<%= render "construction_overview/pending_reports",
+            pending_reports_summary: pending_reports_summary,
+            pending_reports_detail: pending_reports_detail,
+            selected_phase_reports: selected_phase_reports %>

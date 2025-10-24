@@ -1,0 +1,42 @@
+<%
+  # Define columns for the pending reports table
+  columns = [
+    {
+      label: "Phase",
+      width: "12%",
+      cell: ->(report) { phase_badge(report['phase_atual']) }
+    },
+    {
+      label: "Casa",
+      width: "12%",
+      cell: ->(report) { content_tag(:strong, report['job_id']) }
+    },
+    {
+      label: "Processo",
+      width: "40%",
+      cell: ->(report) { report['processo'] || '-' }
+    },
+    {
+      label: "Report Date",
+      width: "20%",
+      cell: ->(report) { content_tag(:span, format_datetime_short(report['data_report']), class: "text-muted") }
+    },
+    {
+      label: "Dias Pendente",
+      width: "16%",
+      cell: ->(report) { days_open_badge(report['dias_pendente']) }
+    }
+  ]
+%>
+
+<%= render "construction_overview/data_table",
+           title: "Reports Pendentes Detalhados",
+           rows: reports,
+           columns: columns,
+           entity_name: "report",
+           turbo_frame_id: "pending_reports_table",
+           selected_filter: selected_phase,
+           clear_filter_path: construction_overview_index_path,
+           max_height: "600px",
+           empty_message: "Nenhum report pendente encontrado.",
+           header_class: "text-warning" %>
