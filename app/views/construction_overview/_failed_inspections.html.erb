@@ -18,7 +18,7 @@
           <!-- Coluna Esquerda: Tabela Detalhada (8 colunas) -->
           <div class="col-lg-8">
             <%= turbo_frame_tag "failed_inspections_table" do %>
-              <%= render "failed_inspections_table",
+              <%= render "construction_overview/failed_inspections_table",
                           inspections: failed_inspections_detail,
                           selected_phase: selected_phase_inspections %>
             <% end %>
@@ -26,7 +26,7 @@
 
           <!-- Coluna Direita: Resumo Visual (4 colunas) -->
           <div class="col-lg-4">
-            <%= render "failed_inspections_summary",
+            <%= render "construction_overview/failed_inspections_summary",
                         summary: failed_inspections_summary,
                         selected_phase: selected_phase_inspections %>
           </div>

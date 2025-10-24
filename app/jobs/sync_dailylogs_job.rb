@@ -205,22 +205,41 @@ class SyncDailylogsJob < ApplicationJob
   end
 
   def broadcast_construction_overview_update
-    # Calculate basic stats for Construction Overview
+    # Instanciar service e executar queries
+    service = ConstructionOverviewService.new
+
+    phase_summary = service.phase_summary
+    active_houses = service.active_houses_detailed
+    failed_inspections_summary = service.failed_inspections_summary
+    failed_inspections_detail = service.failed_inspections_detail
     total_records = Dailylog.count
 
-    # Broadcast the updated partial to all connected clients
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "construction_overview",
-      target: "construction_overview_content",
+    # Usar renderer do controller para ter contexto correto de partials
+    # Isso garante que render "phase_table" funcione dentro de construction_overview/_content
+    html = ConstructionOverviewController.render(
       partial: "construction_overview/content",
       locals: {
-        total_records: total_records
+        total_records: total_records,
+        phase_summary: phase_summary,
+        active_houses: active_houses,
+        selected_phase: nil,  # Broadcast não aplica filtros
+        failed_inspections_summary: failed_inspections_summary,
+        failed_inspections_detail: failed_inspections_detail,
+        selected_phase_inspections: nil  # Broadcast não aplica filtros
       }
     )
 
-    Rails.logger.info "Broadcasted Construction Overview update via Turbo Stream (#{total_records} records)"
+    # Broadcast o HTML já renderizado
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "construction_overview",
+      target: "construction_overview_content",
+      html: html
+    )
+
+    Rails.logger.info "✅ Broadcasted Construction Overview: #{total_records} records, #{active_houses.size} active houses, #{phase_summary.size} phases"
   rescue StandardError => e
-    Rails.logger.error "Failed to broadcast Construction Overview update: #{e.message}"
+    Rails.logger.error "❌ Broadcast Construction Overview failed: #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
     # Don't re-raise - broadcast failure shouldn't fail the job
   end
 end

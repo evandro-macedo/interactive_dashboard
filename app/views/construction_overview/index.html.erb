@@ -1,25 +1,41 @@
 <%# Subscribe to Turbo Stream broadcasts for automatic updates %>
 <%= turbo_stream_from "construction_overview" %>
 
-<!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-  <h1 class="h3 mb-0 text-gray-800">Construction Overview</h1>
-</div>
-
-<!-- Sync Status Info -->
-<% if @last_sync %>
-  <div class="alert <%= @last_sync.successful? ? 'alert-info' : 'alert-warning' %> alert-dismissible fade show mb-3" role="alert">
-    <i class="fas fa-sync-alt"></i>
-    <% if @last_sync.successful? %>
-      <strong>Last updated:</strong> <%= time_ago_in_words(@last_sync.synced_at) %> ago
-      (<%= number_with_delimiter(@last_sync.records_synced) %> records synced<% if @last_sync.records_added && @last_sync.records_added > 0 %>, <span class="badge bg-success"><%= number_with_delimiter(@last_sync.records_added) %> new</span><% end %>)
-    <% else %>
-      <strong>Sync failed:</strong> <%= time_ago_in_words(@last_sync.synced_at) %> ago
-      - <%= @last_sync.error_message %>
-    <% end %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Page Header with Modern Layout -->
+<div class="page-header-wrapper">
+  <div class="page-header-content">
+    <h1 class="h3 mb-0">Construction Overview Dashboard</h1>
+    <p class="page-header-subtitle">
+      <i class="bi bi-bar-chart-line-fill"></i>
+      Real-time insights from <%= number_with_delimiter(@total_records) %> construction logs
+    </p>
   </div>
-<% end %>
+
+  <!-- Simple Sync Status Badge -->
+  <% if @last_sync %>
+    <%
+      minutes_ago = ((Time.current - @last_sync.synced_at) / 60).to_i
+      badge_class = if @last_sync.failed?
+                      'sync-badge-error'
+                    elsif minutes_ago > 10
+                      'sync-badge-warning'
+                    else
+                      'sync-badge-success'
+                    end
+      icon_class = @last_sync.failed? ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'
+      formatted_total = (@total_records >= 1000) ? "#{(@total_records / 1000.0).round(1)}K" : @total_records.to_s
+      duration_s = (@last_sync.duration_ms / 1000.0).round(1)
+    %>
+    <div class="sync-status-badge <%= badge_class %>">
+      <i class="bi <%= icon_class %> me-2"></i>
+      <span class="fw-semibold">Updated <%= time_ago_in_words(@last_sync.synced_at) %> ago</span>
+      <span class="mx-1 text-muted">•</span>
+      <span><i class="bi bi-database me-1"></i><%= formatted_total %></span>
+      <span class="mx-1 text-muted">•</span>
+      <span><i class="bi bi-lightning-fill me-1"></i><%= duration_s %>s</span>
+    </div>
+  <% end %>
+</div>
 
 <!-- Main Content (will be auto-updated via Turbo Streams) -->
 <div id="construction_overview_content">
