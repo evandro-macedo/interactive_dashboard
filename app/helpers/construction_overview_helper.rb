@@ -71,4 +71,41 @@ module ConstructionOverviewHelper
       concat " #{days} dias"
     end
   end
+
+  def status_badge(status)
+    return '-' if status.blank?
+
+    # Normalizar status para lowercase para comparação
+    status_lower = status.to_s.downcase.strip
+
+    # Mapear status para cores (baseado em 30 status identificados)
+    color = case status_lower
+            # Verde (success): Itens concluídos/aprovados
+            when 'inspection approved', 'inspection validated', 'delivered',
+                 'rework checklist done', 'repair done', 'inspection waived'
+              'success'
+
+            # Azul (primary): Itens agendados/prontos
+            when 'scheduled', 'ready to inspect', 'requested',
+                 'rework pre scheduled', 'rework scheduled'
+              'primary'
+
+            # Amarelo (warning): Itens em andamento/atrasados
+            when 'in progress', 'rework in progress', 'delayed',
+                 'rework delayed', 'rescheduled', 'rework reschedule',
+                 'not started', 'rework not started', 'ordered'
+              'warning'
+
+            # Vermelho (danger): Itens reprovados/problemáticos
+            when 'inspection disapproved', 'report', 'canceled',
+                 'inspection partial approved', 'rework requested'
+              'danger'
+
+            # Cinza (secondary): Outros status/informativos
+            else
+              'secondary'
+            end
+
+    content_tag :span, status, class: "badge badge-#{color}"
+  end
 end

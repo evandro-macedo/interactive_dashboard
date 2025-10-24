@@ -354,13 +354,16 @@ class ConstructionOverviewService
            pending_reports AS (
              SELECT DISTINCT
                r.job_id,
-               r.process
+               r.process,
+               MAX(r.report_date) as latest_report_date
              FROM reports r
              LEFT JOIN checklist_done cd
                ON r.job_id = cd.job_id
                AND r.process = cd.process
              WHERE cd.first_checklist_done_date IS NULL
                 OR r.report_date > cd.first_checklist_done_date
+             GROUP BY r.job_id, r.process
+             HAVING CAST((julianday('now') - julianday(MAX(r.report_date))) AS INTEGER) <= 60
            )
       SELECT
         #{phase_label_case_jmp} as phase_atual,
@@ -505,6 +508,7 @@ class ConstructionOverviewService
             AND dl.datecreated > prd.report_date
         )
       GROUP BY jmp.current_phase_number, aj.job_id, aj.jobsite, prd.process, prd.report_date
+      HAVING CAST((julianday('now') - julianday(prd.report_date)) AS INTEGER) <= 60
       ORDER BY jmp.current_phase_number, dias_pendente DESC
     SQL
 
@@ -519,17 +523,21 @@ class ConstructionOverviewService
   # Retorna: 5 linhas com total de processos abertos
   # Tempo esperado: ~150ms
   # Lógica: Scheduled "aberto" = status='scheduled' SEM checklist done posterior
+  # Exclui: Processos de inspeção e materiais (não aplicam "checklist done")
   def open_scheduled_summary
     sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            scheduled_items AS (
-             SELECT DISTINCT
+             SELECT
                d.job_id,
-               d.process
+               d.process,
+               d.datecreated as scheduled_date
              FROM dailylogs d
              WHERE d.job_id IN (SELECT job_id FROM active_jobs)
                AND d.status = 'scheduled'
+               AND d.process NOT LIKE '%inspection%'
+               AND d.process NOT LIKE '%material%'
            ),
            checklist_done_items AS (
              SELECT DISTINCT
@@ -537,17 +545,20 @@ class ConstructionOverviewService
                d.process
              FROM dailylogs d
              WHERE d.job_id IN (SELECT job_id FROM active_jobs)
-               AND d.status = 'checklist done'
+               AND (d.status = 'checklist done' OR d.status = 'rework checklist done')
            ),
            open_scheduled AS (
              SELECT
                si.job_id,
-               si.process
+               si.process,
+               MIN(si.scheduled_date) as first_scheduled_date
              FROM scheduled_items si
              LEFT JOIN checklist_done_items cd
                ON si.job_id = cd.job_id
                AND si.process = cd.process
              WHERE cd.job_id IS NULL
+             GROUP BY si.job_id, si.process
+             HAVING CAST((julianday('now') - julianday(MIN(si.scheduled_date))) AS INTEGER) <= 60
            )
       SELECT
         #{phase_label_case_jmp} as phase_atual,
@@ -569,6 +580,7 @@ class ConstructionOverviewService
   # Retorna: Cada processo scheduled aberto com status atual
   # Tempo esperado: ~200ms
   # Mostra: Primeiro scheduled de cada job+process + último status APÓS o scheduled
+  # Exclui: Processos de inspeção e materiais (não aplicam "checklist done")
   def open_scheduled_detail
     sql = <<-SQL
       WITH #{active_jobs_cte},
@@ -577,10 +589,13 @@ class ConstructionOverviewService
              SELECT
                d.job_id,
                d.process,
-               d.datecreated as scheduled_date
+               d.datecreated as scheduled_date,
+               d.servicedate
              FROM dailylogs d
              WHERE d.job_id IN (SELECT job_id FROM active_jobs)
                AND d.status = 'scheduled'
+               AND d.process NOT LIKE '%inspection%'
+               AND d.process NOT LIKE '%material%'
            ),
            checklist_done_items AS (
              SELECT DISTINCT
@@ -588,13 +603,14 @@ class ConstructionOverviewService
                d.process
              FROM dailylogs d
              WHERE d.job_id IN (SELECT job_id FROM active_jobs)
-               AND d.status = 'checklist done'
+               AND (d.status = 'checklist done' OR d.status = 'rework checklist done')
            ),
            open_scheduled AS (
              SELECT
                si.job_id,
                si.process,
-               si.scheduled_date
+               si.scheduled_date,
+               si.servicedate
              FROM scheduled_items si
              LEFT JOIN checklist_done_items cd
                ON si.job_id = cd.job_id
@@ -606,6 +622,7 @@ class ConstructionOverviewService
                job_id,
                process,
                scheduled_date,
+               servicedate,
                ROW_NUMBER() OVER (PARTITION BY job_id, process ORDER BY scheduled_date ASC) as rn
              FROM open_scheduled
            ),
@@ -628,7 +645,8 @@ class ConstructionOverviewService
         aj.job_id,
         aj.jobsite,
         osf.process as processo,
-        osf.scheduled_date as data_scheduled,
+        osf.servicedate as data_service,
+        osf.scheduled_date as data_criacao,
         lsas.status_atual_do_item,
         lsas.data_ultimo_status,
         CAST((julianday('now') - julianday(osf.scheduled_date)) AS INTEGER) as dias_em_aberto
@@ -640,6 +658,7 @@ class ConstructionOverviewService
         AND osf.process = lsas.process
         AND lsas.rn = 1
       WHERE jmp.current_phase_number >= 0
+        AND CAST((julianday('now') - julianday(osf.scheduled_date)) AS INTEGER) <= 60
       ORDER BY jmp.current_phase_number, dias_em_aberto DESC
     SQL
 

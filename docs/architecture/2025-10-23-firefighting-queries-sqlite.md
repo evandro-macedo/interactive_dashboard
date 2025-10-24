@@ -235,10 +235,10 @@ end
 | **A** | Q6 | 275 eventos (job 557) | ✅ |
 | **B** | Q7 | 35 inspeções reprovadas | ✅ |
 | **B** | Q8 | 35 detalhes (= Q7) | ✅ |
-| **C** | Q9 | 526 reports (ANTES FMEA) | ✅ |
-| **C** | Q10 | 324 reports (APÓS FMEA, **-38.4%**) | ✅ |
-| **D** | Q11 | 3,186 scheduled abertos | ✅ |
-| **D** | Q12 | 3,186 detalhes (= Q11) | ✅ |
+| **C** | Q9 | 257 reports (≤60 dias, ANTES FMEA) | ✅ |
+| **C** | Q10 | 160 reports (≤60 dias, APÓS FMEA) | ✅ |
+| **D** | Q11 | 1,299 scheduled abertos (≤60 dias) | ✅ |
+| **D** | Q12 | 1,299 detalhes (≤60 dias) | ✅ |
 
 ### Validações Cruzadas
 
@@ -248,9 +248,25 @@ end
 | Q2 count == Q5 count | Iguais | 260 = 260 | ✅ |
 | Q3 total >= Q1 soma | `280 >= 260` | ✅ (20 sem phase) | ✅ |
 | Q7 count == Q8 count | Iguais | 35 = 35 | ✅ |
-| Q9 total >= Q10 count | `526 >= 324` | ✅ | ✅ |
-| Q10 redução ~38.5% | `35-42%` | 38.4% | ✅ |
-| Q11 total == Q12 count | Iguais | 3,186 = 3,186 | ✅ |
+| Q9 total >= Q10 count | `257 >= 160` | ✅ | ✅ |
+| Q10 redução FMEA ~37% | `35-42%` | 37.7% | ✅ |
+| Q11 total == Q12 count | Iguais | 1,299 = 1,299 | ✅ |
+
+### Filtro de 60 Dias
+
+**Aplicado em:** Queries 9, 10, 11 e 12 (Grupos C e D)
+
+**Justificativa:** Apenas items com **até 60 dias** em aberto são considerados válidos para análise. Pendências com **mais de 60 dias** são assumidas como erros de input no sistema e foram removidas para reduzir ruído nos dados.
+
+**Impacto da otimização:**
+- **Grupo C (Reports):** 324 → 160 items (-164, redução de 50.6%)
+- **Grupo D (Scheduled):** 3,185 → 1,299 items (-1,886, redução de 59.2%)
+- **Total removido:** 2,050 items assumidos como erros (>60 dias)
+- **Total focado:** 1,459 pendências recentes (≤60 dias)
+
+**Implementação SQL:**
+- Queries 9 e 11: Filtro no CTE via `HAVING julianday <= 60`
+- Queries 10 e 12: Filtro no SELECT final via `WHERE/HAVING julianday <= 60`
 
 ---
 

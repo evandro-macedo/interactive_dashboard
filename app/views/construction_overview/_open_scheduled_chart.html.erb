@@ -1,0 +1,20 @@
+<div class="card shadow h-100" data-controller="open-scheduled"
+     data-open-scheduled-summary-data-value="<%= summary.to_json %>">
+  <div class="card-header py-3">
+    <h6 class="m-0 font-weight-bold text-info">Distribuição por Phase</h6>
+  </div>
+  <div class="card-body">
+    <div class="chart-container" style="position: relative; height: 400px;">
+      <canvas data-open-scheduled-target="canvas"></canvas>
+    </div>
+    <% if selected_phase.present? %>
+      <div class="mt-3 text-center">
+        <span class="badge badge-info">Filtrado: <%= selected_phase %></span>
+        <%= link_to "Limpar filtro",
+                    construction_overview_index_path,
+                    class: "btn btn-sm btn-outline-secondary ms-2",
+                    data: { turbo_frame: "open_scheduled_table" } %>
+      </div>
+    <% end %>
+  </div>
+</div>

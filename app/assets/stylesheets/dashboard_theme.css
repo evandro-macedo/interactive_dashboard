@@ -104,12 +104,12 @@ h5, .h5 { font-size: 1.1rem; }
 .dashboard-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 2rem 3rem 2rem;
+  padding: 2rem 0.96rem 3rem 0.96rem;
 }
 
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 1rem 1rem 2rem 1rem;
+    padding: 1rem 0.48rem 2rem 0.48rem;
   }
 }
 
@@ -167,6 +167,13 @@ h5, .h5 { font-size: 1.1rem; }
   border-bottom: 3px solid #ffc107; /* Amarelo dourado */
 }
 
+/* Header claro para seção de scheduled */
+.card-header.header-info-light {
+  background: #e3f2fd !important; /* Azul muito claro */
+  color: #1565c0 !important; /* Azul escuro */
+  border-bottom: 3px solid #2196f3; /* Azul médio */
+}
+
 /* Botões em headers claros - atualizado para melhor contraste */
 .card-header .btn-outline-secondary,
 .card-header .btn-outline-light {
@@ -193,7 +200,7 @@ h5, .h5 { font-size: 1.1rem; }
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 0.75rem;
 }
 
 /* Cards com altura total (flex) */
@@ -788,11 +795,11 @@ th.sortable {
 
 @media (max-width: 576px) {
   .dashboard-container {
-    padding: 0.75rem;
+    padding: 0.75rem 0.36rem;
   }
 
   .card-body {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .table td,

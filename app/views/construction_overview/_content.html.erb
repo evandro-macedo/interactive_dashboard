@@ -9,6 +9,9 @@
 <% pending_reports_summary ||= @pending_reports_summary %>
 <% pending_reports_detail ||= @pending_reports_detail %>
 <% selected_phase_reports ||= @selected_phase_reports %>
+<% open_scheduled_summary ||= @open_scheduled_summary %>
+<% open_scheduled_detail ||= @open_scheduled_detail %>
+<% selected_phase_scheduled ||= @selected_phase_scheduled %>
 
 <!-- ========================================================================
      GRUPO A: CASAS ATIVAS
@@ -22,7 +25,7 @@
           Casas Ativas por Phase
         </h6>
       </div>
-      <div class="card-body p-4">
+      <div class="card-body p-2">
         <div class="row g-4">
           <!-- Coluna Esquerda: Tabela de Casas (8 colunas) -->
           <div class="col-lg-8">
@@ -58,3 +61,11 @@
             pending_reports_summary: pending_reports_summary,
             pending_reports_detail: pending_reports_detail,
             selected_phase_reports: selected_phase_reports %>
+
+<!-- ========================================================================
+     GRUPO D: SCHEDULED ABERTOS
+     ======================================================================== -->
+<%= render "construction_overview/open_scheduled",
+            open_scheduled_summary: open_scheduled_summary,
+            open_scheduled_detail: open_scheduled_detail,
+            selected_phase_scheduled: selected_phase_scheduled %>

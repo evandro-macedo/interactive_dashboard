@@ -1,0 +1,61 @@
+<%
+  # Definir as colunas da tabela baseadas nos campos REAIS da Query 12
+  # Campos disponíveis: phase_atual, job_id, jobsite, processo, data_service, data_criacao,
+  #                     status_atual_do_item, data_ultimo_status, dias_em_aberto
+
+  columns = [
+    {
+      label: "Phase",
+      width: "10%",
+      cell: ->(item) { phase_badge(item['phase_atual']) }
+    },
+    {
+      label: "Casa",
+      width: "10%",
+      cell: ->(item) { content_tag(:strong, item['job_id']) }
+    },
+    {
+      label: "Processo",
+      width: "25%",
+      cell: ->(item) { item['processo'] }
+    },
+    {
+      label: "Data Service",
+      width: "15%",
+      cell: ->(item) {
+        content_tag(:span, item['data_service'] || '-',
+                    class: "text-muted")
+      }
+    },
+    {
+      label: "Data Criação",
+      width: "15%",
+      cell: ->(item) {
+        content_tag(:span, format_datetime_short(item['data_criacao']),
+                    class: "text-muted")
+      }
+    },
+    {
+      label: "Status Atual",
+      width: "15%",
+      cell: ->(item) { status_badge(item['status_atual_do_item']) }
+    },
+    {
+      label: "Dias Aberto",
+      width: "10%",
+      cell: ->(item) { days_open_badge(item['dias_em_aberto']) }
+    }
+  ]
+%>
+
+<%= render "construction_overview/data_table",
+           title: "Scheduled Abertos",
+           rows: items,
+           columns: columns,
+           entity_name: "item",
+           turbo_frame_id: "open_scheduled_table",
+           selected_filter: selected_phase,
+           clear_filter_path: construction_overview_index_path,
+           max_height: "600px",
+           empty_message: "Nenhum scheduled aberto encontrado",
+           header_class: "text-info" %>

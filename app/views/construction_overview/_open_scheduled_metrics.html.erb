@@ -1,0 +1,52 @@
+<%
+  # Calcular métricas baseadas nas queries 11 e 12
+
+  # 1. Total de Items Scheduled Abertos (soma de todos os items)
+  total_items = summary.sum { |s| s['total_items_scheduled_abertos'].to_i }
+
+  # 2. Phase Crítica (phase com mais items scheduled)
+  most_affected_phase = summary.max_by { |s| s['total_items_scheduled_abertos'].to_i }
+  critical_phase = most_affected_phase ? most_affected_phase['phase_atual'] : 'N/A'
+  critical_phase_count = most_affected_phase ? most_affected_phase['total_items_scheduled_abertos'].to_i : 0
+
+  # 3. Casas Afetadas (total de casas com scheduled abertos)
+  total_casas = summary.sum { |s| s['total_casas'].to_i }
+
+  # 4. Percentual do Total de Casas (assumindo ~280 casas ativas)
+  total_casas_ativas = 280
+  percentual_casas = total_casas > 0 ? ((total_casas.to_f / total_casas_ativas) * 100).round(1) : 0
+
+  # Definir os 4 indicadores
+  metrics = [
+    {
+      title: "Total de Items",
+      value: total_items,
+      subtitle: "Scheduled abertos",
+      icon: "fa-calendar-check",
+      color: "info"
+    },
+    {
+      title: "Phase Crítica",
+      value: critical_phase,
+      subtitle: "#{critical_phase_count} items",
+      icon: "fa-exclamation-triangle",
+      color: "warning"
+    },
+    {
+      title: "Casas Afetadas",
+      value: total_casas,
+      subtitle: "Com scheduled abertos",
+      icon: "fa-home",
+      color: "primary"
+    },
+    {
+      title: "% do Total",
+      value: "#{percentual_casas}%",
+      subtitle: "Das #{total_casas_ativas} casas",
+      icon: "fa-percentage",
+      color: "secondary"
+    }
+  ]
+%>
+
+<%= render "shared/metrics_indicators", metrics: metrics %>

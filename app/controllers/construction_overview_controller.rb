@@ -61,6 +61,26 @@ class ConstructionOverviewController < ApplicationController
     end
 
     # ========================================================================
+    # GRUPO D: SCHEDULED ABERTOS (Queries 11-12)
+    # ========================================================================
+
+    # Query 11: Resumo de scheduled abertos por phase
+    @open_scheduled_summary = @service.open_scheduled_summary
+
+    # Query 12: Lista detalhada de scheduled abertos
+    @open_scheduled_detail = @service.open_scheduled_detail
+
+    # Filtro opcional por phase (Grupo D)
+    @selected_phase_scheduled = params[:phase_scheduled]
+
+    # Aplicar filtro se phase selecionada
+    if @selected_phase_scheduled.present?
+      @open_scheduled_detail = @open_scheduled_detail.select do |item|
+        item['phase_atual'] == @selected_phase_scheduled
+      end
+    end
+
+    # ========================================================================
     # DADOS GERAIS
     # ========================================================================
 
