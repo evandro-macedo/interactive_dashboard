@@ -16,15 +16,17 @@
   <div class="card-body p-0">
     <% if inspections.any? %>
       <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-        <table class="table table-bordered table-sm table-hover mb-0">
+        <table class="table table-bordered table-hover mb-0"
+               data-controller="table-sort"
+               data-table-sort-target="table">
           <thead class="sticky-top bg-light">
             <tr>
-              <th style="width: 10%;">Phase</th>
-              <th style="width: 10%;">Casa</th>
-              <th style="width: 30%;">Processo</th>
-              <th style="width: 15%;">Reprovação</th>
-              <th style="width: 12%;">Dias Aberto</th>
-              <th style="width: 23%;">Último Status</th>
+              <th style="width: 10%;" class="sortable" data-action="click->table-sort#sort">Phase</th>
+              <th style="width: 10%;" class="sortable" data-action="click->table-sort#sort">Casa</th>
+              <th style="width: 30%;" class="sortable" data-action="click->table-sort#sort">Processo</th>
+              <th style="width: 15%;" class="sortable" data-action="click->table-sort#sort">Reprovação</th>
+              <th style="width: 12%;" class="sortable" data-action="click->table-sort#sort">Dias Aberto</th>
+              <th style="width: 23%;" class="sortable" data-action="click->table-sort#sort">Último Status</th>
             </tr>
           </thead>
           <tbody>
@@ -38,11 +40,11 @@
 
                 <!-- Processo (truncado) -->
                 <td>
-                  <small><%= insp['processo_inspecao']&.truncate(35) || '-' %></small>
+                  <%= insp['processo_inspecao']&.truncate(35) || '-' %>
                 </td>
 
                 <!-- Data Reprovação -->
-                <td class="text-muted small">
+                <td class="text-muted">
                   <%= format_datetime_short(insp['data_reprovacao']) %>
                 </td>
 
@@ -52,7 +54,7 @@
                 </td>
 
                 <!-- Último Status -->
-                <td class="text-muted small">
+                <td class="text-muted">
                   <%= insp['ultimo_status']&.truncate(25) || '-' %>
                 </td>
               </tr>

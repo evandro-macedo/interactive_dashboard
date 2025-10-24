@@ -16,20 +16,21 @@
 %>
 
 <!-- Cards de Métricas-Chave -->
-<div class="row mb-3">
+<div class="row g-3 mb-4">
   <!-- Card 1: Total de Inspeções -->
-  <div class="col-6 mb-3">
-    <div class="card border-left-danger shadow h-100 py-2">
+  <div class="col-6">
+    <div class="card border-left-danger shadow h-100 py-3">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+          <div class="col">
+            <div class="text-xs font-weight-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
               Total Inspeções
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800"><%= total_inspections %></div>
+            <div class="h4 mb-0 font-weight-bold"><%= total_inspections %></div>
+            <div class="text-muted mt-1" style="font-size: 0.8rem;">Reprovadas ativas</div>
           </div>
           <div class="col-auto">
-            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+            <i class="fas fa-times-circle fa-3x"></i>
           </div>
         </div>
       </div>
@@ -37,20 +38,21 @@
   </div>
 
   <!-- Card 2: Phase Mais Afetada -->
-  <div class="col-6 mb-3">
-    <div class="card border-left-warning shadow h-100 py-2">
+  <div class="col-6">
+    <div class="card border-left-warning shadow h-100 py-3">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+          <div class="col">
+            <div class="text-xs font-weight-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
               Phase Crítica
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
+            <div class="h4 mb-0 font-weight-bold">
               <%= most_affected_phase&.dig('phase_atual')&.gsub('Phase ', '') || '-' %>
             </div>
+            <div class="text-muted mt-1" style="font-size: 0.8rem;">Maior número</div>
           </div>
           <div class="col-auto">
-            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+            <i class="fas fa-exclamation-triangle fa-3x"></i>
           </div>
         </div>
       </div>
@@ -58,18 +60,19 @@
   </div>
 
   <!-- Card 3: Casas Afetadas -->
-  <div class="col-6 mb-3">
-    <div class="card border-left-info shadow h-100 py-2">
+  <div class="col-6">
+    <div class="card border-left-info shadow h-100 py-3">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+          <div class="col">
+            <div class="text-xs font-weight-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
               Casas Afetadas
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800"><%= total_casas %></div>
+            <div class="h4 mb-0 font-weight-bold"><%= total_casas %></div>
+            <div class="text-muted mt-1" style="font-size: 0.8rem;">Com inspeções</div>
           </div>
           <div class="col-auto">
-            <i class="fas fa-home fa-2x text-gray-300"></i>
+            <i class="fas fa-home fa-3x"></i>
           </div>
         </div>
       </div>
@@ -77,18 +80,19 @@
   </div>
 
   <!-- Card 4: Percentual Médio -->
-  <div class="col-6 mb-3">
-    <div class="card border-left-secondary shadow h-100 py-2">
+  <div class="col-6">
+    <div class="card border-left-secondary shadow h-100 py-3">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+          <div class="col">
+            <div class="text-xs font-weight-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
               % Médio
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800"><%= avg_percentage %>%</div>
+            <div class="h4 mb-0 font-weight-bold"><%= avg_percentage %>%</div>
+            <div class="text-muted mt-1" style="font-size: 0.8rem;">Por phase</div>
           </div>
           <div class="col-auto">
-            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+            <i class="fas fa-percentage fa-3x"></i>
           </div>
         </div>
       </div>
@@ -98,13 +102,13 @@
 
 <!-- Gráfico de Barras -->
 <div class="card shadow mb-0">
-  <div class="card-header py-2">
-    <h6 class="m-0 font-weight-bold text-danger" style="font-size: 0.875rem;">
+  <div class="card-header py-3">
+    <h6 class="m-0 font-weight-bold text-danger" style="font-size: 0.95rem;">
       Distribuição por Phase
     </h6>
   </div>
-  <div class="card-body">
-    <p class="text-muted small mb-2">
+  <div class="card-body p-3">
+    <p class="text-muted mb-3" style="font-size: 0.875rem;">
       <i class="fas fa-mouse-pointer"></i> Clique em uma barra para filtrar
     </p>
     <div data-controller="failed-inspections"

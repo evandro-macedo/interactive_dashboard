@@ -1,0 +1,490 @@
+/*
+ * Dashboard Theme - Estilo Sóbrio e Profissional
+ * Paleta: Azul Escuro (#1a243f) + Dourado (#AD9779)
+ * Data: 2025-10-24
+ */
+
+/* ============================================================================
+   CSS VARIABLES - PALETA CUSTOMIZADA
+   ========================================================================== */
+
+:root {
+  /* Cores Principais */
+  --dashboard-primary: #1a243f;
+  --dashboard-primary-light: #2d3a5f;
+  --dashboard-primary-dark: #010204;
+
+  --dashboard-gold: #AD9779;
+  --dashboard-gold-light: #c9b496;
+  --dashboard-gold-dark: #8b7a5f;
+
+  /* Cores Neutras */
+  --dashboard-white: #ffffff;
+  --dashboard-bg: #f8f9fa;
+  --dashboard-gray-light: #e9ecef;
+  --dashboard-gray-medium: #6c757d;
+  --dashboard-gray-dark: #495057;
+
+  /* Bordas */
+  --dashboard-border: #e0e0e0;
+  --dashboard-border-hover: #d0d0d0;
+
+  /* Phase Colors (Gradiente Azul → Dourado) */
+  --phase-0: #1a243f;
+  --phase-1: #3d4f7f;
+  --phase-2: #6b7ba8;
+  --phase-3: #AD9779;
+  --phase-4: #8b7a5f;
+
+  /* Sombras */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(26, 36, 63, 0.075);
+  --shadow-md: 0 0.5rem 1rem rgba(26, 36, 63, 0.15);
+  --shadow-lg: 0 1rem 3rem rgba(26, 36, 63, 0.175);
+}
+
+/* ============================================================================
+   TYPOGRAPHY - FONTES 20% MAIORES
+   ========================================================================== */
+
+body {
+  font-size: 1rem !important; /* era 0.875rem no SB Admin 2 */
+  color: var(--dashboard-gray-dark);
+  line-height: 1.6;
+}
+
+.card-header h6,
+.card-header .font-weight-bold {
+  font-size: 1.1rem !important; /* era 0.875rem */
+  letter-spacing: 0.02em;
+}
+
+table {
+  font-size: 0.95rem !important; /* era 0.75rem */
+}
+
+.small,
+small {
+  font-size: 0.875rem !important; /* era 0.7rem */
+}
+
+h1, .h1 { font-size: 2.2rem; }
+h2, .h2 { font-size: 1.8rem; }
+h3, .h3 { font-size: 1.5rem; }
+h4, .h4 { font-size: 1.3rem; }
+h5, .h5 { font-size: 1.1rem; }
+
+/* ============================================================================
+   LAYOUT - CONTAINER COM MARGENS LATERAIS
+   ========================================================================== */
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2rem 3rem 2rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem 1rem 2rem 1rem;
+  }
+}
+
+/* ============================================================================
+   CARDS - ESTILO SÓBRIO
+   ========================================================================== */
+
+.card {
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background: var(--dashboard-primary) !important;
+  color: var(--dashboard-white) !important;
+  border-bottom: 2px solid var(--dashboard-gold);
+  padding: 1rem 1.25rem;
+}
+
+.card-header i {
+  color: var(--dashboard-gold);
+  margin-right: 0.5rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Cards de Métricas */
+.card.border-left-danger,
+.card.border-left-warning,
+.card.border-left-info,
+.card.border-left-secondary,
+.card.border-left-primary,
+.card.border-left-success {
+  border-left: 4px solid var(--dashboard-gold) !important;
+  border-top: 1px solid var(--dashboard-border);
+  border-right: 1px solid var(--dashboard-border);
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+.card .text-danger,
+.card .text-warning,
+.card .text-info,
+.card .text-secondary {
+  color: var(--dashboard-primary) !important;
+}
+
+.card .fa-2x {
+  color: var(--dashboard-gold) !important;
+}
+
+/* ============================================================================
+   GRÁFICOS - TAMANHO MODERADO
+   ========================================================================== */
+
+.chart-container {
+  max-height: 280px;
+  position: relative;
+}
+
+[data-controller="construction-overview"],
+[data-controller="failed-inspections"] {
+  max-height: 280px;
+}
+
+/* ============================================================================
+   TABELAS - ESTILO PROFISSIONAL + ORDENAÇÃO
+   ========================================================================== */
+
+.table {
+  color: var(--dashboard-gray-dark);
+  border-color: var(--dashboard-border);
+}
+
+.table thead {
+  background: var(--dashboard-bg);
+}
+
+.table th {
+  color: var(--dashboard-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--dashboard-gold);
+  padding: 0.875rem 0.75rem;
+  vertical-align: middle;
+}
+
+.table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-color: var(--dashboard-border);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(173, 151, 121, 0.08); /* gold com 8% opacidade */
+}
+
+.table-bordered {
+  border: 1px solid var(--dashboard-border);
+}
+
+/* Tabelas Ordenáveis */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 2rem;
+  transition: background-color 0.2s ease;
+}
+
+th.sortable:hover {
+  background-color: var(--dashboard-gray-light);
+}
+
+th.sortable::after {
+  content: "⇅";
+  position: absolute;
+  right: 0.75rem;
+  color: var(--dashboard-gray-medium);
+  font-size: 0.875rem;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+th.sortable:hover::after {
+  opacity: 1;
+}
+
+th.sortable.sorted-asc::after {
+  content: "▲";
+  color: var(--dashboard-gold);
+  opacity: 1;
+}
+
+th.sortable.sorted-desc::after {
+  content: "▼";
+  color: var(--dashboard-gold);
+  opacity: 1;
+}
+
+/* Sticky Header */
+.table thead.sticky-top {
+  background: var(--dashboard-white);
+  box-shadow: 0 2px 4px rgba(26, 36, 63, 0.1);
+  z-index: 10;
+}
+
+/* ============================================================================
+   BADGES - PALETA SÓBRIA
+   ========================================================================== */
+
+.badge {
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+}
+
+/* Phase Badges - Gradiente Azul → Dourado */
+.badge-primary {
+  background-color: var(--phase-0) !important;
+  color: var(--dashboard-white);
+}
+
+.badge-success {
+  background-color: var(--phase-1) !important;
+  color: var(--dashboard-white);
+}
+
+.badge-info {
+  background-color: var(--phase-2) !important;
+  color: var(--dashboard-white);
+}
+
+.badge-warning {
+  background-color: var(--phase-3) !important;
+  color: var(--dashboard-primary);
+}
+
+.badge-danger {
+  background-color: var(--dashboard-primary) !important;
+  color: var(--dashboard-white);
+  border: 1px solid var(--dashboard-gold);
+}
+
+.badge-secondary {
+  background-color: var(--dashboard-gray-medium) !important;
+  color: var(--dashboard-white);
+}
+
+/* ============================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn-outline-secondary {
+  color: var(--dashboard-gray-dark);
+  border-color: var(--dashboard-border);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--dashboard-primary);
+  border-color: var(--dashboard-primary);
+  color: var(--dashboard-white);
+}
+
+/* ============================================================================
+   UTILITÁRIOS
+   ========================================================================== */
+
+.text-muted {
+  color: var(--dashboard-gray-medium) !important;
+}
+
+.text-primary {
+  color: var(--dashboard-primary) !important;
+}
+
+.text-gold {
+  color: var(--dashboard-gold) !important;
+}
+
+.bg-light {
+  background-color: var(--dashboard-bg) !important;
+}
+
+.border-primary {
+  border-color: var(--dashboard-border) !important;
+}
+
+/* ============================================================================
+   ANIMAÇÕES SUAVES
+   ========================================================================== */
+
+.card,
+.table,
+.btn,
+.badge,
+th.sortable {
+  transition: all 0.3s ease;
+}
+
+/* ============================================================================
+   SCROLLBAR CUSTOMIZADA
+   ========================================================================== */
+
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: var(--dashboard-bg);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--dashboard-gray-medium);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--dashboard-primary);
+}
+
+/* ============================================================================
+   SIDEBAR E NAVBAR - ESTILO SÓBRIO
+   ========================================================================== */
+
+/* Sidebar */
+.sidebar {
+  background: linear-gradient(180deg, var(--dashboard-primary) 0%, var(--dashboard-primary-dark) 100%) !important;
+}
+
+.sidebar .sidebar-brand {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid var(--dashboard-gold);
+}
+
+.sidebar .sidebar-brand-icon i {
+  color: var(--dashboard-gold);
+}
+
+.sidebar .sidebar-brand-text {
+  color: var(--dashboard-white);
+}
+
+.sidebar .nav-item .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-item .nav-link:hover,
+.sidebar .nav-item .nav-link:active,
+.sidebar .nav-item .nav-link.active {
+  color: var(--dashboard-white);
+  background-color: rgba(173, 151, 121, 0.15); /* gold com opacidade */
+  border-left: 3px solid var(--dashboard-gold);
+}
+
+.sidebar .nav-item .nav-link i {
+  color: rgba(173, 151, 121, 0.7);
+}
+
+.sidebar .nav-item .nav-link:hover i,
+.sidebar .nav-item .nav-link.active i {
+  color: var(--dashboard-gold);
+}
+
+.sidebar-divider {
+  border-top: 1px solid rgba(173, 151, 121, 0.3) !important;
+}
+
+.sidebar-heading {
+  color: rgba(173, 151, 121, 0.6) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Topbar/Navbar */
+#content-wrapper {
+  background-color: var(--dashboard-bg);
+}
+
+.topbar {
+  background-color: var(--dashboard-white) !important;
+  border-bottom: 2px solid var(--dashboard-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar .navbar-search {
+  border: 1px solid var(--dashboard-border);
+}
+
+.topbar .navbar-search:focus-within {
+  border-color: var(--dashboard-gold);
+}
+
+.topbar .nav-item .nav-link {
+  color: var(--dashboard-gray-dark);
+}
+
+.topbar .nav-item .nav-link:hover {
+  color: var(--dashboard-primary);
+}
+
+.topbar .dropdown-menu {
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Footer */
+.footer,
+.sticky-footer {
+  background-color: var(--dashboard-white) !important;
+  border-top: 1px solid var(--dashboard-border);
+}
+
+.footer .copyright,
+.sticky-footer .copyright {
+  color: var(--dashboard-gray-medium);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  body {
+    font-size: 0.95rem !important;
+  }
+
+  .card-header h6 {
+    font-size: 1rem !important;
+  }
+
+  table {
+    font-size: 0.875rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-container {
+    padding: 0.75rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .table td,
+  .table th {
+    padding: 0.5rem 0.35rem;
+    font-size: 0.8rem !important;
+  }
+}

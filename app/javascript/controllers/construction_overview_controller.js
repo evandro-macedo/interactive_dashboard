@@ -21,13 +21,13 @@ export default class extends Controller {
     const data = this.phaseDataValue.map(p => parseInt(p.total_casas))
     const percentages = this.phaseDataValue.map(p => p.percentual)
 
-    // Cores SB Admin 2 por phase
+    // Nova paleta sóbria: gradiente azul → dourado
     const colors = {
-      'Phase 0': '#4e73df',  // Primary (azul)
-      'Phase 1': '#1cc88a',  // Success (verde)
-      'Phase 2': '#36b9cc',  // Info (ciano)
-      'Phase 3': '#f6c23e',  // Warning (amarelo)
-      'Phase 4': '#e74a3b'   // Danger (vermelho)
+      'Phase 0': '#1a243f',  // Azul escuro
+      'Phase 1': '#3d4f7f',  // Azul médio
+      'Phase 2': '#6b7ba8',  // Azul claro
+      'Phase 3': '#AD9779',  // Dourado
+      'Phase 4': '#8b7a5f'   // Dourado escuro
     }
 
     const backgroundColor = labels.map(label => colors[label])
@@ -58,7 +58,7 @@ export default class extends Controller {
             position: 'bottom',
             labels: {
               padding: 15,
-              font: { size: 12 }
+              font: { size: 13 }
             }
           },
           tooltip: {

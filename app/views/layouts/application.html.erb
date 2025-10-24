@@ -26,6 +26,7 @@
     <%# Bootstrap CSS %>
     <%= stylesheet_link_tag "application.bootstrap", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "sb-admin-2.min", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "dashboard_theme", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
@@ -44,10 +45,10 @@
           <%= render 'layouts/topbar' %>
 
           <!-- Begin Page Content -->
-          <div class="container-fluid">
+          <div class="dashboard-container">
             <%= yield %>
           </div>
-          <!-- /.container-fluid -->
+          <!-- End Page Content -->
 
         </div>
         <!-- End of Main Content -->
