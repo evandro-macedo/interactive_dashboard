@@ -3,20 +3,47 @@
 <% phase_summary ||= @phase_summary %>
 <% active_houses ||= @active_houses %>
 <% selected_phase ||= @selected_phase %>
+<% failed_inspections_summary ||= @failed_inspections_summary %>
+<% failed_inspections_detail ||= @failed_inspections_detail %>
+<% selected_phase_inspections ||= @selected_phase_inspections %>
 
-<!-- Main Dashboard Layout: Tabela + Gráfico -->
-<div class="row">
-  <!-- Coluna Esquerda: Tabela de Casas (8 colunas) -->
-  <div class="col-lg-8 mb-4">
-    <%= turbo_frame_tag "houses_table" do %>
-      <%= render "phase_table",
-                  houses: active_houses,
-                  selected_phase: selected_phase %>
-    <% end %>
-  </div>
+<!-- ========================================================================
+     GRUPO A: CASAS ATIVAS
+     ======================================================================== -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card shadow">
+      <div class="card-header py-3 bg-primary">
+        <h6 class="m-0 font-weight-bold text-white">
+          <i class="fas fa-home"></i>
+          Casas Ativas por Phase
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Coluna Esquerda: Tabela de Casas (8 colunas) -->
+          <div class="col-lg-8 mb-4 mb-lg-0">
+            <%= turbo_frame_tag "houses_table" do %>
+              <%= render "phase_table",
+                          houses: active_houses,
+                          selected_phase: selected_phase %>
+            <% end %>
+          </div>
 
-  <!-- Coluna Direita: Gráfico de Pizza (4 colunas) -->
-  <div class="col-lg-4 mb-4">
-    <%= render "phase_chart", phase_summary: phase_summary %>
+          <!-- Coluna Direita: Gráfico de Pizza (4 colunas) -->
+          <div class="col-lg-4">
+            <%= render "phase_chart", phase_summary: phase_summary %>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- ========================================================================
+     GRUPO B: INSPEÇÕES REPROVADAS
+     ======================================================================== -->
+<%= render "failed_inspections",
+            failed_inspections_summary: failed_inspections_summary,
+            failed_inspections_detail: failed_inspections_detail,
+            selected_phase_inspections: selected_phase_inspections %>

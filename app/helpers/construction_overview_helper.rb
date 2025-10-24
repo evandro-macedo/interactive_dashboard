@@ -21,4 +21,27 @@ module ConstructionOverviewHelper
   rescue StandardError
     datetime.to_s
   end
+
+  def dias_aberto_badge(dias)
+    return '-' if dias.blank?
+
+    dias = dias.to_i
+
+    # Badge danger se > 7 dias, warning se 4-7 dias, info se < 4 dias
+    if dias > 7
+      color = 'danger'
+      icon = 'fas fa-exclamation-circle'
+    elsif dias >= 4
+      color = 'warning'
+      icon = 'fas fa-exclamation-triangle'
+    else
+      color = 'info'
+      icon = 'fas fa-clock'
+    end
+
+    content_tag :span, class: "badge badge-#{color}" do
+      concat content_tag(:i, '', class: icon)
+      concat " #{dias}d"
+    end
+  end
 end

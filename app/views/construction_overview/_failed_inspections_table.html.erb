@@ -1,0 +1,79 @@
+<div class="card shadow h-100">
+  <div class="card-header py-3 d-flex justify-content-between align-items-center">
+    <h6 class="m-0 font-weight-bold text-danger">
+      Inspeções Detalhadas
+      <% if selected_phase.present? %>
+        - <%= selected_phase %>
+      <% end %>
+    </h6>
+    <% if selected_phase.present? %>
+      <%= link_to "Limpar Filtro",
+                  construction_overview_index_path,
+                  class: "btn btn-sm btn-outline-secondary",
+                  data: { turbo_frame: "failed_inspections_table" } %>
+    <% end %>
+  </div>
+  <div class="card-body p-0">
+    <% if inspections.any? %>
+      <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+        <table class="table table-bordered table-sm table-hover mb-0">
+          <thead class="sticky-top bg-light">
+            <tr>
+              <th style="width: 10%;">Phase</th>
+              <th style="width: 10%;">Casa</th>
+              <th style="width: 30%;">Processo</th>
+              <th style="width: 15%;">Reprovação</th>
+              <th style="width: 12%;">Dias Aberto</th>
+              <th style="width: 23%;">Último Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% inspections.each do |insp| %>
+              <tr>
+                <!-- Phase Badge -->
+                <td><%= phase_badge(insp['phase_atual']) %></td>
+
+                <!-- Job ID -->
+                <td><strong><%= insp['job_id'] %></strong></td>
+
+                <!-- Processo (truncado) -->
+                <td>
+                  <small><%= insp['processo_inspecao']&.truncate(35) || '-' %></small>
+                </td>
+
+                <!-- Data Reprovação -->
+                <td class="text-muted small">
+                  <%= format_datetime_short(insp['data_reprovacao']) %>
+                </td>
+
+                <!-- Dias em Aberto (badge danger se > 7 dias) -->
+                <td>
+                  <%= dias_aberto_badge(insp['dias_em_aberto']) %>
+                </td>
+
+                <!-- Último Status -->
+                <td class="text-muted small">
+                  <%= insp['ultimo_status']&.truncate(25) || '-' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="p-4 text-center text-muted">
+        <i class="fas fa-check-circle fa-3x mb-3"></i>
+        <p class="mb-0">Nenhuma inspeção reprovada encontrada.</p>
+      </div>
+    <% end %>
+  </div>
+  <div class="card-footer bg-white border-top-0">
+    <small class="text-muted">
+      <i class="fas fa-info-circle"></i>
+      Mostrando <%= inspections.count %> <%= 'inspeção'.pluralize(inspections.count) %>
+      <% if selected_phase.present? %>
+        para <%= selected_phase %>
+      <% end %>
+    </small>
+  </div>
+</div>
