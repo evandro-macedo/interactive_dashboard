@@ -1,15 +1,16 @@
 module ConstructionOverviewHelper
   def phase_badge(phase)
-    color = case phase
-            when 'Phase 0' then 'primary'
-            when 'Phase 1' then 'success'
-            when 'Phase 2' then 'info'
-            when 'Phase 3' then 'warning'
-            when 'Phase 4' then 'danger'
-            else 'secondary'
-            end
+    # Usar classes customizadas com cores claras
+    color_class = case phase
+                  when 'Phase 0' then 'badge-phase-0'
+                  when 'Phase 1' then 'badge-phase-1'
+                  when 'Phase 2' then 'badge-phase-2'
+                  when 'Phase 3' then 'badge-phase-3'
+                  when 'Phase 4' then 'badge-phase-4'
+                  else 'badge-secondary'
+                  end
 
-    content_tag :span, phase, class: "badge badge-#{color}"
+    content_tag :span, phase, class: "badge #{color_class}"
   end
 
   def format_datetime_short(datetime)

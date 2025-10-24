@@ -7,28 +7,28 @@
 <div class="row mb-5">
   <div class="col-12">
     <div class="card shadow">
-      <div class="card-header py-4 bg-danger">
-        <h6 class="m-0 font-weight-bold text-white">
+      <div class="card-header py-4 header-danger-light">
+        <h6 class="m-0 font-weight-bold">
           <i class="fas fa-exclamation-triangle"></i>
           Inspeções Reprovadas
         </h6>
       </div>
       <div class="card-body p-4">
         <div class="row g-4">
-          <!-- Coluna Esquerda: Resumo Visual (4 colunas) -->
-          <div class="col-lg-4">
-            <%= render "failed_inspections_summary",
-                        summary: failed_inspections_summary,
-                        selected_phase: selected_phase_inspections %>
-          </div>
-
-          <!-- Coluna Direita: Tabela Detalhada (8 colunas) -->
+          <!-- Coluna Esquerda: Tabela Detalhada (8 colunas) -->
           <div class="col-lg-8">
             <%= turbo_frame_tag "failed_inspections_table" do %>
               <%= render "failed_inspections_table",
                           inspections: failed_inspections_detail,
                           selected_phase: selected_phase_inspections %>
             <% end %>
+          </div>
+
+          <!-- Coluna Direita: Resumo Visual (4 colunas) -->
+          <div class="col-lg-4">
+            <%= render "failed_inspections_summary",
+                        summary: failed_inspections_summary,
+                        selected_phase: selected_phase_inspections %>
           </div>
         </div>
       </div>

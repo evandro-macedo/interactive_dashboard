@@ -29,12 +29,36 @@
   --dashboard-border: #e0e0e0;
   --dashboard-border-hover: #d0d0d0;
 
-  /* Phase Colors (Gradiente Azul → Dourado) */
+  /* Phase Colors (Gradiente Azul → Dourado) - DARK (sidebar) */
   --phase-0: #1a243f;
   --phase-1: #3d4f7f;
   --phase-2: #6b7ba8;
   --phase-3: #AD9779;
   --phase-4: #8b7a5f;
+
+  /* Phase Colors LIGHT - Para dashboard (headers, gráficos, badges) */
+  --phase-0-light: #5b6b9f;
+  --phase-1-light: #7a8ab8;
+  --phase-2-light: #9fabd0;
+  --phase-3-light: #d4c4a8;
+  --phase-4-light: #baa898;
+
+  /* Header Colors (tons muito claros para backgrounds) */
+  --header-primary-bg: #e8ecf5;
+  --header-primary-text: #2d3a5f;
+  --header-danger-bg: #ffebee;
+  --header-danger-text: #c62828;
+  --header-gold-accent: #AD9779;
+
+  /* Badge Colors (pastéis com bom contraste) */
+  --badge-success-bg: #e8f5e9;
+  --badge-success-text: #2e7d32;
+  --badge-warning-bg: #fff3e0;
+  --badge-warning-text: #e65100;
+  --badge-danger-bg: #ffebee;
+  --badge-danger-text: #c62828;
+  --badge-info-bg: #e3f2fd;
+  --badge-info-text: #1565c0;
 
   /* Sombras */
   --shadow-sm: 0 0.125rem 0.25rem rgba(26, 36, 63, 0.075);
@@ -104,19 +128,82 @@ h5, .h5 { font-size: 1.1rem; }
 }
 
 .card-header {
-  background: var(--dashboard-primary) !important;
-  color: var(--dashboard-white) !important;
-  border-bottom: 2px solid var(--dashboard-gold);
+  background: var(--header-primary-bg) !important;
+  color: var(--header-primary-text) !important;
+  border-bottom: 3px solid var(--header-gold-accent);
   padding: 1rem 1.25rem;
 }
 
+.card-header h6,
+.card-header .font-weight-bold,
+.card-header .m-0 {
+  color: var(--header-primary-text) !important;
+  font-weight: 700;
+}
+
 .card-header i {
-  color: var(--dashboard-gold);
+  color: var(--header-gold-accent);
   margin-right: 0.5rem;
+}
+
+/* Header claro para seção de casas ativas */
+.card-header.header-primary-light {
+  background: var(--header-primary-bg) !important;
+  color: var(--header-primary-text) !important;
+  border-bottom: 3px solid var(--phase-2-light);
+}
+
+/* Header claro para seção de inspeções */
+.card-header.header-danger-light {
+  background: var(--header-danger-bg) !important;
+  color: var(--header-danger-text) !important;
+  border-bottom: 3px solid var(--phase-3-light);
+}
+
+/* Botões em headers claros - atualizado para melhor contraste */
+.card-header .btn-outline-secondary,
+.card-header .btn-outline-light {
+  color: var(--header-primary-text) !important;
+  border-color: var(--dashboard-border) !important;
+  background-color: var(--dashboard-white) !important;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.card-header .btn-outline-secondary:hover,
+.card-header .btn-outline-light:hover {
+  background-color: var(--dashboard-gold) !important;
+  border-color: var(--dashboard-gold) !important;
+  color: var(--dashboard-white) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(173, 151, 121, 0.3);
+}
+
+.card-header .btn-outline-secondary:focus,
+.card-header .btn-outline-light:focus {
+  box-shadow: 0 0 0 0.2rem rgba(173, 151, 121, 0.5) !important;
+  outline: none;
 }
 
 .card-body {
   padding: 1.5rem;
+}
+
+/* Cards com altura total (flex) */
+.card.h-100 {
+  display: flex;
+  flex-direction: column;
+}
+
+.card.h-100 .card-body {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Card-body com padding zero mas flex */
+.card-body.flex-grow-1 {
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 /* Cards de Métricas */
@@ -157,6 +244,18 @@ h5, .h5 { font-size: 1.1rem; }
   max-height: 280px;
 }
 
+/* Gráficos clicáveis - cursor pointer */
+canvas[data-failed-inspections-target="canvas"],
+canvas[data-construction-overview-target="canvas"] {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+canvas[data-failed-inspections-target="canvas"]:hover,
+canvas[data-construction-overview-target="canvas"]:hover {
+  opacity: 0.9;
+}
+
 /* ============================================================================
    TABELAS - ESTILO PROFISSIONAL + ORDENAÇÃO
    ========================================================================== */
@@ -192,17 +291,34 @@ h5, .h5 { font-size: 1.1rem; }
   border: 1px solid var(--dashboard-border);
 }
 
+/* Table-responsive deve preencher o card-body */
+.card-body .table-responsive {
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Garantir altura mínima/máxima para tabelas */
+.table-responsive {
+  min-height: 400px;
+  max-height: 600px;
+}
+
 /* Tabelas Ordenáveis */
 th.sortable {
   cursor: pointer;
   user-select: none;
   position: relative;
   padding-right: 2rem;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 th.sortable:hover {
-  background-color: var(--dashboard-gray-light);
+  background-color: rgba(173, 151, 121, 0.1);
+  transform: translateY(-1px);
+}
+
+th.sortable:active {
+  transform: translateY(0);
 }
 
 th.sortable::after {
@@ -249,36 +365,67 @@ th.sortable.sorted-desc::after {
   border-radius: 0.25rem;
 }
 
-/* Phase Badges - Gradiente Azul → Dourado */
-.badge-primary {
-  background-color: var(--phase-0) !important;
-  color: var(--dashboard-white);
+/* Phase Badges - Tons CLAROS com melhor legibilidade */
+.badge-phase-0 {
+  background-color: var(--phase-0-light) !important;
+  color: var(--dashboard-white) !important;
+  border: 1px solid var(--phase-0);
 }
 
+.badge-phase-1 {
+  background-color: var(--phase-1-light) !important;
+  color: var(--dashboard-white) !important;
+  border: 1px solid var(--phase-1);
+}
+
+.badge-phase-2 {
+  background-color: var(--phase-2-light) !important;
+  color: var(--dashboard-white) !important;
+  border: 1px solid var(--phase-2);
+}
+
+.badge-phase-3 {
+  background-color: var(--phase-3-light) !important;
+  color: var(--dashboard-primary) !important;
+  border: 1px solid var(--phase-3);
+  font-weight: 700;
+}
+
+.badge-phase-4 {
+  background-color: var(--phase-4-light) !important;
+  color: var(--dashboard-primary) !important;
+  border: 1px solid var(--phase-4);
+}
+
+/* Status Badges - Cores pastéis com alto contraste */
 .badge-success {
-  background-color: var(--phase-1) !important;
-  color: var(--dashboard-white);
-}
-
-.badge-info {
-  background-color: var(--phase-2) !important;
-  color: var(--dashboard-white);
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+  border: 1px solid var(--badge-success-text);
 }
 
 .badge-warning {
-  background-color: var(--phase-3) !important;
-  color: var(--dashboard-primary);
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+  border: 1px solid var(--badge-warning-text);
 }
 
 .badge-danger {
-  background-color: var(--dashboard-primary) !important;
-  color: var(--dashboard-white);
-  border: 1px solid var(--dashboard-gold);
+  background-color: var(--badge-danger-bg) !important;
+  color: var(--badge-danger-text) !important;
+  border: 1px solid var(--badge-danger-text);
+}
+
+.badge-info {
+  background-color: var(--badge-info-bg) !important;
+  color: var(--badge-info-text) !important;
+  border: 1px solid var(--badge-info-text);
 }
 
 .badge-secondary {
-  background-color: var(--dashboard-gray-medium) !important;
-  color: var(--dashboard-white);
+  background-color: var(--dashboard-gray-light) !important;
+  color: var(--dashboard-gray-dark) !important;
+  border: 1px solid var(--dashboard-border);
 }
 
 /* ============================================================================
@@ -453,6 +600,156 @@ th.sortable {
 .footer .copyright,
 .sticky-footer .copyright {
   color: var(--dashboard-gray-medium);
+}
+
+/* ============================================================================
+   SYNC STATUS BADGE - Indicador de Sincronização
+   ========================================================================== */
+
+.sync-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 2px solid;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sync-status-badge i.bi {
+  font-size: 1rem;
+}
+
+.sync-status-badge .fw-semibold {
+  color: inherit;
+}
+
+/* Estado: Sucesso (sync recente < 10min) */
+.sync-badge-success {
+  background-color: var(--badge-success-bg);
+  color: var(--badge-success-text);
+  border-color: var(--badge-success-text);
+}
+
+.sync-badge-success i.bi-check-circle-fill {
+  color: var(--badge-success-text);
+}
+
+/* Estado: Warning (sync > 10min) */
+.sync-badge-warning {
+  background-color: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+  border-color: var(--badge-warning-text);
+}
+
+.sync-badge-warning i.bi-check-circle-fill {
+  color: var(--badge-warning-text);
+}
+
+/* Estado: Erro (sync falhou) */
+.sync-badge-error {
+  background-color: var(--badge-danger-bg);
+  color: var(--badge-danger-text);
+  border-color: var(--badge-danger-text);
+}
+
+.sync-badge-error i.bi-exclamation-triangle-fill {
+  color: var(--badge-danger-text);
+}
+
+/* Ícones secundários (database, lightning) */
+.sync-status-badge i.bi-database,
+.sync-status-badge i.bi-lightning-fill {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Badge de novos registros (verde claro) */
+.sync-status-badge .badge {
+  font-size: 0.75rem;
+  padding: 0.25em 0.5em;
+  font-weight: 600;
+}
+
+/* Separadores (bullets) */
+.sync-status-badge .text-muted {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+/* Hover effect */
+.sync-status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsivo: reduzir tamanho em mobile */
+@media (max-width: 768px) {
+  .sync-status-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .sync-status-badge i.bi {
+    font-size: 0.875rem;
+  }
+
+  /* Esconder duração do sync em mobile para economizar espaço */
+  .sync-status-badge > span:last-child,
+  .sync-status-badge > span:nth-last-child(2) {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   PAGE HEADER - Título e Subtítulo
+   ========================================================================== */
+
+.page-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+
+.page-header-content h1 {
+  margin-bottom: 0.25rem;
+  color: var(--dashboard-primary);
+  font-weight: 700;
+}
+
+.page-header-subtitle {
+  color: var(--dashboard-gray-medium);
+  font-size: 0.925rem;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-header-subtitle i {
+  color: var(--dashboard-gold);
+  font-size: 1rem;
+}
+
+/* Responsivo: stack verticalmente em mobile */
+@media (max-width: 768px) {
+  .page-header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .page-header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .page-header-subtitle {
+    font-size: 0.85rem;
+  }
 }
 
 /* ============================================================================

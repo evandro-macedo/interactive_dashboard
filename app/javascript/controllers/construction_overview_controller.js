@@ -21,13 +21,13 @@ export default class extends Controller {
     const data = this.phaseDataValue.map(p => parseInt(p.total_casas))
     const percentages = this.phaseDataValue.map(p => p.percentual)
 
-    // Nova paleta sóbria: gradiente azul → dourado
+    // Paleta CLARA: tons pastéis para melhor legibilidade
     const colors = {
-      'Phase 0': '#1a243f',  // Azul escuro
-      'Phase 1': '#3d4f7f',  // Azul médio
-      'Phase 2': '#6b7ba8',  // Azul claro
-      'Phase 3': '#AD9779',  // Dourado
-      'Phase 4': '#8b7a5f'   // Dourado escuro
+      'Phase 0': '#5b6b9f',  // Azul suave
+      'Phase 1': '#7a8ab8',  // Azul médio claro
+      'Phase 2': '#9fabd0',  // Azul muito claro
+      'Phase 3': '#d4c4a8',  // Dourado claro
+      'Phase 4': '#baa898'   // Dourado médio claro
     }
 
     const backgroundColor = labels.map(label => colors[label])
