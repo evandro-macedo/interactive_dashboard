@@ -1,0 +1,100 @@
+<%#
+  Reusable Data Table Component
+
+  Parameters:
+  - title: String - Table title displayed in card header
+  - rows: Array - Collection of data rows to display
+  - columns: Array of Hashes - Column definitions with keys:
+      - label: String - Column header text
+      - width: String (optional) - CSS width (e.g., "10%", "20%")
+      - sortable: Boolean (default: true) - Whether column is sortable
+      - cell: Proc/Lambda - Renders cell content, receives row as parameter
+  - entity_name: String - Singular entity name for footer (e.g., "casa", "inspeção")
+  - turbo_frame_id: String - ID for Turbo Frame wrapper
+  - selected_filter: String (optional) - Currently applied filter text
+  - clear_filter_path: String (optional) - Path to clear filter
+  - max_height: String (default: "600px") - Maximum table height
+  - empty_message: String (optional) - Message when no rows
+  - header_class: String (default: "text-primary") - CSS class for header title
+%>
+
+<%
+  # Set defaults
+  max_height ||= "600px"
+  empty_message ||= "Nenhum registro encontrado."
+  header_class ||= "text-primary"
+  selected_filter ||= nil
+  clear_filter_path ||= nil
+%>
+
+<div class="card shadow h-100">
+  <!-- Card Header -->
+  <div class="card-header py-3 d-flex justify-content-between align-items-center">
+    <h6 class="m-0 font-weight-bold <%= header_class %>">
+      <%= title %>
+      <% if selected_filter.present? %>
+        - <%= selected_filter %>
+      <% end %>
+    </h6>
+    <% if selected_filter.present? && clear_filter_path.present? %>
+      <%= link_to "Limpar Filtro",
+                  clear_filter_path,
+                  class: "btn btn-sm btn-outline-light",
+                  data: { turbo_frame: turbo_frame_id } %>
+    <% end %>
+  </div>
+
+  <!-- Card Body -->
+  <div class="card-body">
+    <% if rows.any? %>
+      <!-- Table Container -->
+      <div class="table-responsive mb-0" style="max-height: <%= max_height %>; overflow-y: auto;">
+        <table class="table table-bordered table-hover mb-0"
+               data-controller="table-sort"
+               data-table-sort-target="table">
+          <!-- Table Header -->
+          <thead class="sticky-top bg-white">
+            <tr>
+              <% columns.each do |column| %>
+                <% sortable = column.fetch(:sortable, true) %>
+                <% width = column[:width] %>
+                <th <% if width.present? %>style="width: <%= width %>;"<% end %>
+                    <% if sortable %>class="sortable" data-action="click->table-sort#sort"<% end %>>
+                  <%= column[:label] %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody>
+            <% rows.each do |row| %>
+              <tr>
+                <% columns.each do |column| %>
+                  <td><%= column[:cell].call(row) %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="mt-3 text-muted">
+        <small>
+          <i class="fas fa-info-circle"></i>
+          Mostrando <%= rows.count %> <%= entity_name.pluralize(rows.count) %>
+          <% if selected_filter.present? %>
+            para <%= selected_filter %>
+          <% end %>
+        </small>
+      </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="text-center text-muted py-5">
+        <i class="fas fa-inbox fa-3x mb-3" style="opacity: 0.3;"></i>
+        <p class="mb-0"><%= empty_message %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

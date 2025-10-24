@@ -14,6 +14,13 @@
         </h6>
       </div>
       <div class="card-body p-4">
+        <!-- Linha 1: Indicadores de Métricas (Full Width) -->
+        <div class="row g-3 mb-4">
+          <%= render "construction_overview/failed_inspections_metrics",
+                      summary: failed_inspections_summary %>
+        </div>
+
+        <!-- Linha 2: Tabela + Gráfico -->
         <div class="row g-4">
           <!-- Coluna Esquerda: Tabela Detalhada (8 colunas) -->
           <div class="col-lg-8">
@@ -24,9 +31,9 @@
             <% end %>
           </div>
 
-          <!-- Coluna Direita: Resumo Visual (4 colunas) -->
+          <!-- Coluna Direita: Gráfico de Distribuição (4 colunas) -->
           <div class="col-lg-4">
-            <%= render "construction_overview/failed_inspections_summary",
+            <%= render "construction_overview/failed_inspections_chart",
                         summary: failed_inspections_summary,
                         selected_phase: selected_phase_inspections %>
           </div>

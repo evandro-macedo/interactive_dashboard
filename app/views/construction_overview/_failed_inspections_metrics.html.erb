@@ -1,0 +1,50 @@
+<%
+  # Calcular métricas agregadas do summary (Query 7)
+  total_inspections = summary.sum { |s| s['total_inspections_reprovadas'].to_i }
+  total_casas = summary.sum { |s| s['total_casas'].to_i }
+
+  # Phase mais afetada (maior número de inspeções)
+  most_affected_phase = summary.max_by { |s| s['total_inspections_reprovadas'].to_i }
+
+  # Percentual médio (remover o símbolo % e calcular média)
+  avg_percentage = if summary.any?
+    percentages = summary.map { |s| s['percentual'].to_s.gsub('%', '').to_f }
+    (percentages.sum / percentages.size).round(1)
+  else
+    0
+  end
+
+  # Definir métricas usando o componente reutilizável
+  metrics = [
+    {
+      title: "Total Inspeções",
+      value: total_inspections,
+      subtitle: "Reprovadas ativas",
+      icon: "fa-times-circle",
+      color: "danger"
+    },
+    {
+      title: "Phase Crítica",
+      value: most_affected_phase&.dig('phase_atual')&.gsub('Phase ', '') || '-',
+      subtitle: "Maior número",
+      icon: "fa-exclamation-triangle",
+      color: "warning"
+    },
+    {
+      title: "Casas Afetadas",
+      value: total_casas,
+      subtitle: "Com inspeções",
+      icon: "fa-home",
+      color: "info"
+    },
+    {
+      title: "% Médio",
+      value: "#{avg_percentage}%",
+      subtitle: "Por phase",
+      icon: "fa-percentage",
+      color: "secondary"
+    }
+  ]
+%>
+
+<%= render "shared/metrics_indicators", metrics: metrics %>

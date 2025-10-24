@@ -1,47 +1,42 @@
-<div class="card shadow h-100">
-  <div class="card-header py-3 d-flex justify-content-between align-items-center">
-    <h6 class="m-0 font-weight-bold text-primary">
-      Casas por Phase
-      <% if selected_phase.present? %>
-        - <%= selected_phase %>
-      <% end %>
-    </h6>
-    <% if selected_phase.present? %>
-      <%= link_to "Limpar Filtro",
-                  construction_overview_index_path,
-                  class: "btn btn-sm btn-outline-secondary",
-                  data: { turbo_frame: "houses_table" } %>
-    <% end %>
-  </div>
-  <div class="card-body">
-    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
-      <table class="table table-bordered table-hover"
-             data-controller="table-sort"
-             data-table-sort-target="table">
-        <thead class="sticky-top bg-white">
-          <tr>
-            <th style="width: 10%;" class="sortable" data-action="click->table-sort#sort">Phase</th>
-            <th style="width: 10%;" class="sortable" data-action="click->table-sort#sort">Casa</th>
-            <th style="width: 20%;" class="sortable" data-action="click->table-sort#sort">Última Atividade</th>
-            <th style="width: 35%;" class="sortable" data-action="click->table-sort#sort">Processo</th>
-            <th style="width: 25%;" class="sortable" data-action="click->table-sort#sort">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% houses.each do |house| %>
-            <tr>
-              <td><%= phase_badge(house['phase_atual']) %></td>
-              <td><strong><%= house['job_id'] %></strong></td>
-              <td class="text-muted"><%= format_datetime_short(house['ultima_atividade']) %></td>
-              <td><%= house['ultimo_processo']&.truncate(40) %></td>
-              <td class="text-muted"><%= house['ultimo_status']&.truncate(25) %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-2 text-muted">
-      <small><i class="fas fa-info-circle"></i> Mostrando <%= houses.count %> casas</small>
-    </div>
-  </div>
-</div>
+<%
+  # Define columns for the houses table
+  columns = [
+    {
+      label: "Phase",
+      width: "10%",
+      cell: ->(house) { phase_badge(house['phase_atual']) }
+    },
+    {
+      label: "Casa",
+      width: "10%",
+      cell: ->(house) { content_tag(:strong, house['job_id']) }
+    },
+    {
+      label: "Última Atividade",
+      width: "20%",
+      cell: ->(house) { content_tag(:span, format_datetime_short(house['ultima_atividade']), class: "text-muted") }
+    },
+    {
+      label: "Processo",
+      width: "35%",
+      cell: ->(house) { house['ultimo_processo']&.truncate(40) }
+    },
+    {
+      label: "Status",
+      width: "25%",
+      cell: ->(house) { content_tag(:span, house['ultimo_status']&.truncate(25), class: "text-muted") }
+    }
+  ]
+%>
+
+<%= render "construction_overview/data_table",
+           title: "Casas por Phase",
+           rows: houses,
+           columns: columns,
+           entity_name: "casa",
+           turbo_frame_id: "houses_table",
+           selected_filter: selected_phase,
+           clear_filter_path: construction_overview_index_path,
+           max_height: "600px",
+           empty_message: "Nenhuma casa ativa encontrada.",
+           header_class: "text-primary" %>

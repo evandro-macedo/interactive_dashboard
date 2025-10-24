@@ -1,0 +1,72 @@
+<%
+# ============================================================================
+# Componente Reutilizável: Indicadores de Métricas
+# ============================================================================
+#
+# Este componente renderiza uma linha de cards de métricas com ícones e valores.
+# Ideal para dashboards que precisam exibir KPIs visuais no topo das seções.
+#
+# Parâmetros:
+# -----------
+# metrics: Array de Hashes com as seguintes chaves:
+#   - title: String - Título do indicador (ex: "Total Inspeções")
+#   - value: String/Integer - Valor principal a ser exibido
+#   - subtitle: String (opcional) - Texto descritivo abaixo do valor
+#   - icon: String - Classe do ícone Font Awesome (ex: "fa-times-circle")
+#   - color: String - Cor do border-left (danger, warning, info, success, secondary, primary)
+#   - col_class: String (opcional) - Classes de coluna Bootstrap (default: "col-lg-3 col-md-6")
+#
+# Exemplo de Uso:
+# ---------------
+# <%
+#   metrics = [
+#     {
+#       title: "Total de Inspeções",
+#       value: 35,
+#       subtitle: "Reprovadas ativas",
+#       icon: "fa-times-circle",
+#       color: "danger"
+#     },
+#     {
+#       title: "Phase Crítica",
+#       value: "3",
+#       subtitle: "Maior número",
+#       icon: "fa-exclamation-triangle",
+#       color: "warning"
+#     }
+#   ]
+# %>
+# <%= render "shared/metrics_indicators", metrics: metrics %>
+#
+# ============================================================================
+%>
+
+<% metrics.each do |metric| %>
+  <%
+    col_class = metric.fetch(:col_class, "col-lg-3 col-md-6")
+    color = metric.fetch(:color, "primary")
+    icon = metric.fetch(:icon, "fa-chart-bar")
+    subtitle = metric[:subtitle]
+  %>
+
+  <div class="<%= col_class %>">
+    <div class="card border-left-<%= color %> shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col">
+            <div class="text-xs font-weight-bold text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+              <%= metric[:title] %>
+            </div>
+            <div class="h4 mb-0 font-weight-bold"><%= metric[:value] %></div>
+            <% if subtitle.present? %>
+              <div class="text-muted mt-1" style="font-size: 0.8rem;"><%= subtitle %></div>
+            <% end %>
+          </div>
+          <div class="col-auto">
+            <i class="fas <%= icon %> fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
