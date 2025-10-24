@@ -22,13 +22,13 @@ export default class extends Controller {
     const casas = this.summaryDataValue.map(s => parseInt(s.total_casas))
     const percentages = this.summaryDataValue.map(s => s.percentual)
 
-    // Paleta AMARELA/LARANJA: tons pastéis para warning theme
+    // Paleta CONSISTENTE: mesmas cores das badges (CSS variables)
     const colors = {
-      'Phase 0': '#f6c343',  // Amarelo ouro claro
-      'Phase 1': '#f8d167',  // Amarelo claro
-      'Phase 2': '#fadfa1',  // Amarelo muito claro
-      'Phase 3': '#ffc266',  // Laranja claro
-      'Phase 4': '#faa94b'   // Laranja médio claro
+      'Phase 0': '#5b6b9f',  // Azul suave
+      'Phase 1': '#7a8ab8',  // Azul médio claro
+      'Phase 2': '#9fabd0',  // Azul muito claro
+      'Phase 3': '#d4c4a8',  // Dourado claro
+      'Phase 4': '#baa898'   // Dourado médio claro
     }
 
     const backgroundColor = labels.map(label => colors[label] || '#f6c23e')

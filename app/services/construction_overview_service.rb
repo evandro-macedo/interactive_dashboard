@@ -30,20 +30,22 @@ class ConstructionOverviewService
   # Retorna: 5 linhas (Phase 0-4) com total_casas e percentual
   # Tempo esperado: ~100ms
   def phase_summary
-    sql = <<-SQL
-      WITH #{active_jobs_cte},
-           #{job_max_phase_cte}
-      SELECT
-        #{phase_label_case} as phase_atual,
-        COUNT(*) as total_casas,
-        CAST(ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 1) AS TEXT) || '%' as percentual
-      FROM job_max_phase
-      WHERE current_phase_number >= 0
-      GROUP BY current_phase_number
-      ORDER BY current_phase_number
-    SQL
+    Rails.cache.fetch(cache_key('phase_summary'), expires_in: 5.minutes) do
+      sql = <<-SQL
+        WITH #{active_jobs_cte},
+             #{job_max_phase_cte}
+        SELECT
+          #{phase_label_case} as phase_atual,
+          COUNT(*) as total_casas,
+          CAST(ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 1) AS TEXT) || '%' as percentual
+        FROM job_max_phase
+        WHERE current_phase_number >= 0
+        GROUP BY current_phase_number
+        ORDER BY current_phase_number
+      SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # Query 2: Lista detalhada - Casas por phase com último processo/status
@@ -51,34 +53,36 @@ class ConstructionOverviewService
   # Tempo esperado: ~200ms
   # Usa: Window Function (ROW_NUMBER) para substituir DISTINCT ON do PostgreSQL
   def active_houses_detailed
-    sql = <<-SQL
-      WITH #{active_jobs_cte},
-           #{job_max_phase_cte},
-           job_last_event AS (
-             SELECT
-               d.job_id,
-               d.datecreated as ultima_atividade,
-               d.process as ultimo_processo,
-               d.status as ultimo_status,
-               ROW_NUMBER() OVER (PARTITION BY d.job_id ORDER BY d.datecreated DESC) as rn
-             FROM dailylogs d
-             WHERE d.job_id IN (SELECT job_id FROM active_jobs)
-           )
-      SELECT
-        #{phase_label_case_jmp} as phase_atual,
-        aj.job_id,
-        aj.jobsite,
-        jle.ultima_atividade,
-        jle.ultimo_processo,
-        jle.ultimo_status
-      FROM job_max_phase jmp
-      JOIN active_jobs aj ON jmp.job_id = aj.job_id
-      JOIN job_last_event jle ON aj.job_id = jle.job_id AND jle.rn = 1
-      WHERE jmp.current_phase_number >= 0
-      ORDER BY jle.ultima_atividade DESC, aj.job_id
-    SQL
+    Rails.cache.fetch(cache_key('active_houses_detailed'), expires_in: 5.minutes) do
+      sql = <<-SQL
+        WITH #{active_jobs_cte},
+             #{job_max_phase_cte},
+             job_last_event AS (
+               SELECT
+                 d.job_id,
+                 d.datecreated as ultima_atividade,
+                 d.process as ultimo_processo,
+                 d.status as ultimo_status,
+                 ROW_NUMBER() OVER (PARTITION BY d.job_id ORDER BY d.datecreated DESC) as rn
+               FROM dailylogs d
+               WHERE d.job_id IN (SELECT job_id FROM active_jobs)
+             )
+        SELECT
+          #{phase_label_case_jmp} as phase_atual,
+          aj.job_id,
+          aj.jobsite,
+          jle.ultima_atividade,
+          jle.ultimo_processo,
+          jle.ultimo_status
+        FROM job_max_phase jmp
+        JOIN active_jobs aj ON jmp.job_id = aj.job_id
+        JOIN job_last_event jle ON aj.job_id = jle.job_id AND jle.rn = 1
+        WHERE jmp.current_phase_number >= 0
+        ORDER BY jle.ultima_atividade DESC, aj.job_id
+      SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # Query 3: Total de casas ativas (validação)
@@ -189,7 +193,8 @@ class ConstructionOverviewService
   # Tempo esperado: ~150ms
   # Lógica: Inspeção "ativa" = reprovada SEM aprovação posterior
   def failed_inspections_summary
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('failed_inspections_summary'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            inspection_failures AS (
@@ -238,7 +243,8 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # Query 8: Inspeções reprovadas - Lista detalhada
@@ -246,7 +252,8 @@ class ConstructionOverviewService
   # Tempo esperado: ~200ms
   # Usa: Window Function para pegar última reprovação de cada inspeção
   def failed_inspections_detail
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('failed_inspections_detail'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            inspection_failures AS (
@@ -316,7 +323,8 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number, dias_em_aberto DESC
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # ============================================================================
@@ -328,7 +336,8 @@ class ConstructionOverviewService
   # Tempo esperado: ~150ms
   # Lógica: Report "pendente" = status='report' SEM checklist done posterior
   def pending_reports_summary
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('pending_reports_summary'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            reports AS (
@@ -378,7 +387,8 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # Query 10: Reports sem checklist done - Lista detalhada
@@ -395,7 +405,8 @@ class ConstructionOverviewService
   #
   # Redução esperada: ~524 reports iniciais → ~322 após filtros (-38.5%)
   def pending_reports_detail
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('pending_reports_detail'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            reports AS (
@@ -512,7 +523,8 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number, dias_pendente DESC
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # ============================================================================
@@ -525,7 +537,8 @@ class ConstructionOverviewService
   # Lógica: Scheduled "aberto" = status='scheduled' SEM checklist done posterior
   # Exclui: Processos de inspeção e materiais (não aplicam "checklist done")
   def open_scheduled_summary
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('open_scheduled_summary'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            scheduled_items AS (
@@ -573,7 +586,8 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   # Query 12: Scheduled sem checklist done - Lista detalhada
@@ -582,7 +596,8 @@ class ConstructionOverviewService
   # Mostra: Primeiro scheduled de cada job+process + último status APÓS o scheduled
   # Exclui: Processos de inspeção e materiais (não aplicam "checklist done")
   def open_scheduled_detail
-    sql = <<-SQL
+    Rails.cache.fetch(cache_key('open_scheduled_detail'), expires_in: 5.minutes) do
+      sql = <<-SQL
       WITH #{active_jobs_cte},
            #{job_max_phase_cte},
            scheduled_items AS (
@@ -662,10 +677,22 @@ class ConstructionOverviewService
       ORDER BY jmp.current_phase_number, dias_em_aberto DESC
     SQL
 
-    Dailylog.lease_connection.select_all(sql).to_a
+      Dailylog.lease_connection.select_all(sql).to_a
+    end
   end
 
   private
+
+  # ============================================================================
+  # CACHE
+  # ============================================================================
+
+  # Gera chave de cache única para cada método
+  # Namespace: construction_overview_service
+  # TTL: 5 minutos (mesmo intervalo do sync)
+  def cache_key(method_name)
+    "construction_overview_service:#{method_name}"
+  end
 
   # ============================================================================
   # MÉTODOS AUXILIARES - CTES REUTILIZÁVEIS

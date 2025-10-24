@@ -98,6 +98,10 @@ class SyncDailylogsJob < ApplicationJob
       # Sync dailylogs_fmea table
       sync_dailylogs_fmea
 
+      # Clear cache after sync completes (both dailylogs and fmea)
+      # This ensures fresh data is loaded on next request
+      clear_construction_overview_cache
+
       # Broadcast Turbo Stream update to Construction Overview page
       broadcast_construction_overview_update
 
@@ -202,6 +206,27 @@ class SyncDailylogsJob < ApplicationJob
 
       # Don't re-raise - FMEA sync failure shouldn't fail the whole job
     end
+  end
+
+  def clear_construction_overview_cache
+    # Clear all cached queries from ConstructionOverviewService
+    # This invalidates the 5-minute cache after sync completes
+    cache_keys = %w[
+      phase_summary
+      active_houses_detailed
+      failed_inspections_summary
+      failed_inspections_detail
+      pending_reports_summary
+      pending_reports_detail
+      open_scheduled_summary
+      open_scheduled_detail
+    ]
+
+    cache_keys.each do |key|
+      Rails.cache.delete("construction_overview_service:#{key}")
+    end
+
+    Rails.logger.info "Cache cleared for Construction Overview (#{cache_keys.size} keys)"
   end
 
   def broadcast_construction_overview_update
