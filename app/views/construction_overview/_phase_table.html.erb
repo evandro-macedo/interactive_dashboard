@@ -1,0 +1,45 @@
+<div class="card shadow h-100">
+  <div class="card-header py-3 d-flex justify-content-between align-items-center">
+    <h6 class="m-0 font-weight-bold text-primary">
+      Casas por Phase
+      <% if selected_phase.present? %>
+        - <%= selected_phase %>
+      <% end %>
+    </h6>
+    <% if selected_phase.present? %>
+      <%= link_to "Limpar Filtro",
+                  construction_overview_index_path,
+                  class: "btn btn-sm btn-outline-secondary",
+                  data: { turbo_frame: "houses_table" } %>
+    <% end %>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+      <table class="table table-bordered table-sm table-hover">
+        <thead class="sticky-top bg-white">
+          <tr>
+            <th style="width: 10%;">Phase</th>
+            <th style="width: 10%;">Casa</th>
+            <th style="width: 20%;">Última Atividade</th>
+            <th style="width: 35%;">Processo</th>
+            <th style="width: 25%;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% houses.each do |house| %>
+            <tr>
+              <td><%= phase_badge(house['phase_atual']) %></td>
+              <td><strong><%= house['job_id'] %></strong></td>
+              <td class="text-muted small"><%= format_datetime_short(house['ultima_atividade']) %></td>
+              <td><%= house['ultimo_processo']&.truncate(40) %></td>
+              <td class="text-muted"><%= house['ultimo_status']&.truncate(25) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-2 text-muted">
+      <small><i class="fas fa-info-circle"></i> Mostrando <%= houses.count %> casas</small>
+    </div>
+  </div>
+</div>

@@ -1,40 +1,22 @@
 <%# Accept variables as locals (from broadcast) or instance variables (from controller) %>
 <% total_records ||= @total_records %>
+<% phase_summary ||= @phase_summary %>
+<% active_houses ||= @active_houses %>
+<% selected_phase ||= @selected_phase %>
 
-<!-- Summary Card -->
+<!-- Main Dashboard Layout: Tabela + Gráfico -->
 <div class="row">
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-left-primary shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-              Total Records
-            </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
-              <%= number_with_delimiter(total_records) %>
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-database fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Coluna Esquerda: Tabela de Casas (8 colunas) -->
+  <div class="col-lg-8 mb-4">
+    <%= turbo_frame_tag "houses_table" do %>
+      <%= render "phase_table",
+                  houses: active_houses,
+                  selected_phase: selected_phase %>
+    <% end %>
   </div>
-</div>
 
-<!-- Placeholder for future content -->
-<div class="card shadow mb-4">
-  <div class="card-header py-3">
-    <h6 class="m-0 font-weight-bold text-primary">
-      Construction Data
-    </h6>
-  </div>
-  <div class="card-body">
-    <div class="alert alert-info mb-0" role="alert">
-      <i class="fas fa-info-circle"></i>
-      Ready for development. Broadcast architecture is active and functional.
-    </div>
+  <!-- Coluna Direita: Gráfico de Pizza (4 colunas) -->
+  <div class="col-lg-4 mb-4">
+    <%= render "phase_chart", phase_summary: phase_summary %>
   </div>
 </div>
