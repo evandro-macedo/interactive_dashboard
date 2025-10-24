@@ -1,0 +1,14 @@
+<%# Table Rows Partial
+    Renders only the <tr> elements for the dailylogs table
+    Used for appending rows when "Load More" is clicked
+    Params:
+    - dailylogs: Array of Dailylog records to render
+%>
+<% dailylogs.each do |log| %>
+  <tr>
+    <% DailylogsController::VISIBLE_COLUMNS.each do |column| %>
+      <% value = log.send(column) %>
+      <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= format_table_value(column, value) %></td>
+    <% end %>
+  </tr>
+<% end %>

@@ -57,29 +57,73 @@ class DailylogsController < ApplicationController
   ].freeze
 
   def index
-    # Data Layer Consistency: Use same scope for initial render and turbo updates
-    # Security: search_in_column validates column against whitelist
-    @dailylogs = Dailylog.search_in_column(params[:q], params[:column])
-                         .then { |relation| apply_sorting(relation) }
-                         .page(params[:page])
-                         .per(25)
+    # Multi-filter support: params[:filters] contains hash of column => value
+    # Backward compatibility: Falls back to params[:q] and params[:column]
+    @per_page = 50
+    @offset = params[:offset]&.to_i || 0
+    @fmea_offset = params[:fmea_offset]&.to_i || 0
 
-    # FMEA table (separate search and pagination)
-    @dailylogs_fmea = DailylogFmea.search_in_column(params[:fmea_q], params[:fmea_column])
-                                   .then { |relation| apply_fmea_sorting(relation) }
-                                   .page(params[:fmea_page])
-                                   .per(25)
+    # Parse filters for dailylogs table
+    filters = parse_filters(params[:filters])
+    @active_filters = filters
+
+    # Apply filters using new multi_filter scope or legacy search_in_column
+    @dailylogs = if filters.present?
+                   Dailylog.multi_filter(filters)
+                 else
+                   Dailylog.search_in_column(params[:q], params[:column])
+                 end
+                 .then { |relation| apply_sorting(relation) }
+                 .limit(@per_page + 1)
+                 .offset(@offset)
+
+    @has_more = @dailylogs.size > @per_page
+    @dailylogs = @dailylogs.first(@per_page) if @has_more
+
+    # Parse filters for FMEA table
+    fmea_filters = parse_filters(params[:fmea_filters])
+    @active_fmea_filters = fmea_filters
+
+    # FMEA table (separate search and filtering)
+    @dailylogs_fmea = if fmea_filters.present?
+                        DailylogFmea.multi_filter(fmea_filters)
+                      else
+                        DailylogFmea.search_in_column(params[:fmea_q], params[:fmea_column])
+                      end
+                      .then { |relation| apply_fmea_sorting(relation) }
+                      .limit(@per_page + 1)
+                      .offset(@fmea_offset)
+
+    @has_more_fmea = @dailylogs_fmea.size > @per_page
+    @dailylogs_fmea = @dailylogs_fmea.first(@per_page) if @has_more_fmea
 
     # Turbo Frame Navigation Pattern:
     # Links with data-turbo-frame automatically extract the matching frame from HTML response
     # No need for explicit format.turbo_stream - Turbo handles it automatically
   rescue StandardError => e
     flash[:alert] = "Error connecting to data lake: #{e.message}"
-    @dailylogs = Dailylog.page(1).per(25)
-    @dailylogs_fmea = DailylogFmea.page(1).per(25)
+    @dailylogs = Dailylog.limit(50)
+    @dailylogs_fmea = DailylogFmea.limit(50)
+    @has_more = false
+    @has_more_fmea = false
+    @active_filters = {}
+    @active_fmea_filters = {}
   end
 
   private
+
+  def parse_filters(filters_param)
+    return {} if filters_param.blank?
+
+    # Filters can come as a hash from forms or URL params
+    # Security: Only allow whitelisted columns
+    # Convert ActionController::Parameters to hash safely
+    hash = filters_param.respond_to?(:to_unsafe_h) ? filters_param.to_unsafe_h : filters_param.to_h
+
+    hash.select do |column, value|
+      value.present? && (Dailylog::SEARCHABLE_COLUMNS.key?(column.to_s) || DailylogFmea::SEARCHABLE_COLUMNS.key?(column.to_s))
+    end
+  end
 
   def apply_sorting(relation)
     sort_column = params[:sort].presence

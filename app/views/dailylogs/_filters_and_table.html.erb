@@ -1,0 +1,27 @@
+<%# Combined partial: Active filters + Table
+    This ensures both are updated together via Turbo Frame
+    Params:
+    - dailylogs: Array of Dailylog records
+    - active_filters: Hash of active filters
+    - offset: Current offset
+    - per_page: Records per page
+    - has_more: Boolean indicating if more records exist
+%>
+
+<!-- Active Filters Pills -->
+<% if active_filters.present? %>
+  <div class="card shadow mb-3">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-center">
+        <strong class="me-2">Active Filters:</strong>
+        <% active_filters.each do |column, value| %>
+          <%= render "filter_pill", column: column, value: value, table: 'dailylogs' %>
+        <% end %>
+        <%= link_to "Clear All", dailylogs_path, class: "btn btn-sm btn-outline-danger", data: { turbo_frame: "dailylogs_table" } %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Data Table -->
+<%= render "table", dailylogs: dailylogs %>

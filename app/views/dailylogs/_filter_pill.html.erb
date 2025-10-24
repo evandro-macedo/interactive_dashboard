@@ -1,0 +1,33 @@
+<%# Filter Pill Component
+    Shows an active filter as a dismissible badge/pill
+    Params:
+    - column: The column name being filtered
+    - value: The filter value
+    - table: 'dailylogs' or 'fmea' (to determine which filters hash to use)
+%>
+<%
+  table ||= 'dailylogs'
+  searchable_columns = table == 'fmea' ? DailylogFmea::SEARCHABLE_COLUMNS : Dailylog::SEARCHABLE_COLUMNS
+  column_label = searchable_columns.dig(column, :label) || column.titleize
+
+  # Build URL for removing this filter
+  current_filters = (table == 'fmea' ? params[:fmea_filters] : params[:filters]) || {}
+  # Convert ActionController::Parameters to hash if needed
+  current_filters = current_filters.to_unsafe_h if current_filters.respond_to?(:to_unsafe_h)
+  new_filters = current_filters.except(column.to_s)
+
+  remove_params = params.permit!.to_h.merge(
+    table == 'fmea' ? { fmea_filters: new_filters, fmea_offset: 0 } : { filters: new_filters, offset: 0 }
+  )
+%>
+
+<span class="badge bg-primary me-2 d-inline-flex align-items-center" style="font-size: 0.85rem; padding: 0.375rem 0.75rem;">
+  <strong><%= column_label %>:</strong>
+  <span class="ms-1"><%= value %></span>
+  <%= link_to dailylogs_path(remove_params),
+              class: "ms-2 text-white text-decoration-none",
+              data: { turbo_frame: table == 'fmea' ? 'dailylogs_fmea_table' : 'dailylogs_table' },
+              title: "Remove filter" do %>
+    <i class="fas fa-times"></i>
+  <% end %>
+</span>

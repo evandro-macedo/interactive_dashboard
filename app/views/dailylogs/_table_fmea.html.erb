@@ -5,9 +5,11 @@
         FMEA Records
       </h6>
       <div class="text-muted">
-        Showing <strong><%= dailylogs_fmea.offset_value + 1 %></strong> to
-        <strong><%= [dailylogs_fmea.offset_value + dailylogs_fmea.length, dailylogs_fmea.total_count].min %></strong> of
-        <strong><%= number_with_delimiter(dailylogs_fmea.total_count) %></strong> records
+        Showing <strong><%= @fmea_offset + 1 %></strong> to
+        <strong><%= @fmea_offset + dailylogs_fmea.length %></strong> records
+        <% if @has_more_fmea %>
+          <span class="badge bg-info ms-2">More available</span>
+        <% end %>
       </div>
     </div>
     <div class="card-body">
@@ -26,27 +28,36 @@
               <% end %>
             </tr>
           </thead>
-          <tbody>
-            <% dailylogs_fmea.each do |log| %>
-              <tr>
-                <% DailylogsController::FMEA_VISIBLE_COLUMNS.each do |column| %>
-                  <% value = log.send(column) %>
-                  <td class="table-cell-nowrap" title="<%= value.to_s %>">
-                    <%= format_table_value(column, value) %>
-                  </td>
-                <% end %>
-              </tr>
-            <% end %>
+          <tbody id="dailylogs_fmea_results">
+            <%= render "table_rows_fmea", dailylogs_fmea: dailylogs_fmea %>
           </tbody>
         </table>
       </div>
 
-      <div class="d-flex justify-content-center mt-3">
-        <%= paginate dailylogs_fmea,
-            params: { fmea_q: params[:fmea_q], fmea_column: params[:fmea_column],
-                      fmea_sort: params[:fmea_sort], fmea_direction: params[:fmea_direction] },
-            param_name: :fmea_page %>
-      </div>
+      <!-- Load More Button -->
+      <% if @has_more_fmea %>
+        <div id="load_more_fmea_container" class="d-flex justify-content-center mt-3">
+          <%= link_to dailylogs_path(
+                        fmea_filters: params[:fmea_filters],
+                        fmea_offset: @fmea_offset + @per_page,
+                        fmea_sort: params[:fmea_sort],
+                        fmea_direction: params[:fmea_direction]
+                      ),
+                      class: "btn btn-primary btn-lg",
+                      data: {
+                        turbo_frame: "dailylogs_fmea_table",
+                        turbo_action: "advance"
+                      } do %>
+            <i class="fas fa-arrow-down me-2"></i>
+            Load More (<%= @per_page %> records)
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center text-muted mt-3">
+          <i class="fas fa-check-circle"></i>
+          End of results
+        </div>
+      <% end %>
     </div>
   </div>
 <% else %>
@@ -55,8 +66,8 @@
       <div class="alert alert-warning mb-0" role="alert">
         <i class="fas fa-exclamation-triangle"></i>
         No FMEA records found
-        <% if params[:fmea_q].present? %>
-          matching "<strong><%= params[:fmea_q] %></strong>"
+        <% if params[:fmea_q].present? || @active_fmea_filters.present? %>
+          matching your filters
         <% end %>
       </div>
     </div>

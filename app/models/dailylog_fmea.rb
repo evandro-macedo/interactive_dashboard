@@ -58,6 +58,33 @@ class DailylogFmea < ApplicationRecord
     end
   }
 
+  # Multi-filter scope: Allows combining multiple column filters (AND conditions)
+  # Usage: DailylogFmea.multi_filter({ 'job_id' => '596', 'process' => 'framing' })
+  # Security: Only whitelisted columns are allowed
+  scope :multi_filter, ->(filters = {}) {
+    relation = all
+
+    return relation if filters.blank?
+
+    filters.each do |column, value|
+      next if value.blank?
+
+      # Security: Only allow whitelisted columns
+      next unless SEARCHABLE_COLUMNS.key?(column.to_s)
+
+      column_str = column.to_s
+      column_config = SEARCHABLE_COLUMNS[column_str]
+
+      if column_config[:numeric]
+        relation = relation.where("CAST(#{column_str} AS TEXT) LIKE ?", "%#{sanitize_sql_like(value)}%")
+      else
+        relation = relation.where("#{column_str} LIKE ?", "%#{sanitize_sql_like(value)}%")
+      end
+    end
+
+    relation
+  }
+
   # Helper: Group columns by category for dropdown
   def self.grouped_searchable_columns
     SEARCHABLE_COLUMNS.group_by { |_, config| config[:group] }

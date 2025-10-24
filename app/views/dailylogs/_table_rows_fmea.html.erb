@@ -1,0 +1,14 @@
+<%# Table Rows Partial for FMEA
+    Renders only the <tr> elements for the dailylogs_fmea table
+    Used for appending rows when "Load More" is clicked
+    Params:
+    - dailylogs_fmea: Array of DailylogFmea records to render
+%>
+<% dailylogs_fmea.each do |log| %>
+  <tr>
+    <% DailylogsController::FMEA_VISIBLE_COLUMNS.each do |column| %>
+      <% value = log.send(column) %>
+      <td class="table-cell-nowrap" title="<%= value.to_s %>"><%= format_table_value(column, value) %></td>
+    <% end %>
+  </tr>
+<% end %>

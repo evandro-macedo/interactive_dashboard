@@ -41,30 +41,34 @@
   </div>
 </div>
 
-<!-- Real-time Search Form -->
-<div class="card shadow mb-3">
+<!-- Multi-Filter Form -->
+<div class="card shadow mb-3" data-controller="multi-filter" data-multi-filter-table-value="dailylogs">
   <div class="card-body">
+    <!-- Add Filter Form -->
     <%= form_with url: dailylogs_path, method: :get,
                   data: {
-                    controller: "search",
                     turbo_frame: "dailylogs_table",
-                    search_target: "form"
+                    multi_filter_target: "form"
                   } do |f| %>
+
+      <!-- Preserve existing filters as hidden fields -->
+      <% @active_filters.each do |column, value| %>
+        <%= hidden_field_tag "filters[#{column}]", value %>
+      <% end %>
+
       <div class="row g-2">
         <!-- Column Selector -->
         <div class="col-md-3">
-          <select name="column"
-                  class="form-select"
-                  data-action="change->search#search">
-            <option value="all" <%= 'selected' if params[:column].blank? || params[:column] == 'all' %>>
-              All Columns
-            </option>
+          <select data-multi-filter-target="columnSelect"
+                  class="form-select">
+            <option value="">+ Add Filter...</option>
 
             <% Dailylog.grouped_searchable_columns.each do |group, columns| %>
               <% next if group.nil? %>
               <optgroup label="<%= group %>">
                 <% columns.each do |key, config| %>
-                  <option value="<%= key %>" <%= 'selected' if params[:column] == key %>>
+                  <% next if @active_filters.key?(key) %> <!-- Skip already filtered columns -->
+                  <option value="<%= key %>">
                     <%= config[:label] %>
                   </option>
                 <% end %>
@@ -73,38 +77,35 @@
           </select>
         </div>
 
-        <!-- Search Input -->
+        <!-- Filter Value Input -->
         <div class="col-md-7">
           <input type="text"
-                 name="q"
-                 value="<%= params[:q] %>"
+                 data-multi-filter-target="valueInput"
                  class="form-control"
-                 placeholder="Type to search..."
-                 data-action="input->search#search"
+                 placeholder="Enter filter value..."
                  autocomplete="off">
         </div>
 
-        <!-- Buttons -->
+        <!-- Add Button -->
         <div class="col-md-2">
-          <div class="btn-group w-100">
-            <button class="btn btn-primary" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-            <% if params[:q].present? %>
-              <%= link_to dailylogs_path, class: "btn btn-outline-secondary", title: "Clear search" do %>
-                <i class="fas fa-times"></i>
-              <% end %>
-            <% end %>
-          </div>
+          <button type="button"
+                  data-action="click->multi-filter#addFilter"
+                  class="btn btn-primary w-100">
+            <i class="fas fa-plus"></i> Add
+          </button>
         </div>
       </div>
+    <% end %>
 
-      <!-- Search hint -->
-      <% if params[:q].present? && params[:column] && params[:column] != 'all' %>
-        <small class="text-muted mt-2 d-block">
-          Searching in: <strong><%= Dailylog::SEARCHABLE_COLUMNS.dig(params[:column], :label) %></strong>
-        </small>
-      <% end %>
+    <!-- Legacy single search fallback (for users typing directly) -->
+    <% if params[:q].present? && @active_filters.blank? %>
+      <div class="alert alert-info mt-3 mb-0">
+        <i class="fas fa-info-circle"></i>
+        Searching for "<strong><%= params[:q] %></strong>"
+        <% if params[:column].present? && params[:column] != 'all' %>
+          in <strong><%= Dailylog::SEARCHABLE_COLUMNS.dig(params[:column], :label) %></strong>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>
@@ -119,7 +120,12 @@
 <!-- ✅ Stable Wrapper Pattern (lessons-learned) -->
 <div id="dailylogs_search_wrapper" data-controller="table-scroll">
   <turbo-frame id="dailylogs_table">
-    <%= render "table", dailylogs: @dailylogs %>
+    <%= render "filters_and_table",
+               dailylogs: @dailylogs,
+               active_filters: @active_filters,
+               offset: @offset,
+               per_page: @per_page,
+               has_more: @has_more %>
   </turbo-frame>
 </div>
 
@@ -162,30 +168,34 @@
   <% end %>
 </div>
 
-<!-- Real-time Search Form - FMEA -->
-<div class="card shadow mb-3">
+<!-- Multi-Filter Form - FMEA -->
+<div class="card shadow mb-3" data-controller="multi-filter" data-multi-filter-table-value="fmea">
   <div class="card-body">
+    <!-- Add Filter Form -->
     <%= form_with url: dailylogs_path, method: :get,
                   data: {
-                    controller: "search",
                     turbo_frame: "dailylogs_fmea_table",
-                    search_target: "form"
+                    multi_filter_target: "form"
                   } do |f| %>
+
+      <!-- Preserve existing filters as hidden fields -->
+      <% @active_fmea_filters.each do |column, value| %>
+        <%= hidden_field_tag "fmea_filters[#{column}]", value %>
+      <% end %>
+
       <div class="row g-2">
         <!-- Column Selector -->
         <div class="col-md-3">
-          <select name="fmea_column"
-                  class="form-select"
-                  data-action="change->search#search">
-            <option value="all" <%= 'selected' if params[:fmea_column].blank? || params[:fmea_column] == 'all' %>>
-              All Columns
-            </option>
+          <select data-multi-filter-target="columnSelect"
+                  class="form-select">
+            <option value="">+ Add Filter...</option>
 
             <% DailylogFmea.grouped_searchable_columns.each do |group, columns| %>
               <% next if group.nil? %>
               <optgroup label="<%= group %>">
                 <% columns.each do |key, config| %>
-                  <option value="<%= key %>" <%= 'selected' if params[:fmea_column] == key %>>
+                  <% next if @active_fmea_filters.key?(key) %> <!-- Skip already filtered columns -->
+                  <option value="<%= key %>">
                     <%= config[:label] %>
                   </option>
                 <% end %>
@@ -194,38 +204,35 @@
           </select>
         </div>
 
-        <!-- Search Input -->
+        <!-- Filter Value Input -->
         <div class="col-md-7">
           <input type="text"
-                 name="fmea_q"
-                 value="<%= params[:fmea_q] %>"
+                 data-multi-filter-target="valueInput"
                  class="form-control"
-                 placeholder="Search FMEA records..."
-                 data-action="input->search#search"
+                 placeholder="Enter filter value..."
                  autocomplete="off">
         </div>
 
-        <!-- Buttons -->
+        <!-- Add Button -->
         <div class="col-md-2">
-          <div class="btn-group w-100">
-            <button class="btn btn-primary" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-            <% if params[:fmea_q].present? %>
-              <%= link_to dailylogs_path, class: "btn btn-outline-secondary", title: "Clear search" do %>
-                <i class="fas fa-times"></i>
-              <% end %>
-            <% end %>
-          </div>
+          <button type="button"
+                  data-action="click->multi-filter#addFilter"
+                  class="btn btn-primary w-100">
+            <i class="fas fa-plus"></i> Add
+          </button>
         </div>
       </div>
+    <% end %>
 
-      <!-- Search hint -->
-      <% if params[:fmea_q].present? && params[:fmea_column] && params[:fmea_column] != 'all' %>
-        <small class="text-muted mt-2 d-block">
-          Searching in: <strong><%= DailylogFmea::SEARCHABLE_COLUMNS.dig(params[:fmea_column], :label) %></strong>
-        </small>
-      <% end %>
+    <!-- Legacy single search fallback -->
+    <% if params[:fmea_q].present? && @active_fmea_filters.blank? %>
+      <div class="alert alert-info mt-3 mb-0">
+        <i class="fas fa-info-circle"></i>
+        Searching for "<strong><%= params[:fmea_q] %></strong>"
+        <% if params[:fmea_column].present? && params[:fmea_column] != 'all' %>
+          in <strong><%= DailylogFmea::SEARCHABLE_COLUMNS.dig(params[:fmea_column], :label) %></strong>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>
@@ -233,6 +240,11 @@
 <!-- FMEA Table Wrapper -->
 <div id="dailylogs_fmea_wrapper" data-controller="table-scroll">
   <turbo-frame id="dailylogs_fmea_table">
-    <%= render "table_fmea", dailylogs_fmea: @dailylogs_fmea %>
+    <%= render "filters_and_table_fmea",
+               dailylogs_fmea: @dailylogs_fmea,
+               active_fmea_filters: @active_fmea_filters,
+               fmea_offset: @fmea_offset,
+               per_page: @per_page,
+               has_more_fmea: @has_more_fmea %>
   </turbo-frame>
 </div>
